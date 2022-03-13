@@ -12,6 +12,10 @@ const routes = [
     component: HomePage
   },
   {
+    path: '/recipes',
+    name: 'recipe list',
+  },
+  {
     path: '/recipes/:recipeId',
     name: 'recipe',
     component: RecipePage,
