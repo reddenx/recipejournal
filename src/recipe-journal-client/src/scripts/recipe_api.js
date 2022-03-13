@@ -24,14 +24,14 @@ export default class RecipeApi {
                     new Ingredient('egg white', '100', 'g'),
                     new Ingredient('powdered sugar', '250', 'g'),
                     new Ingredient('almond flour', '260', 'g'),
-                ], 'lightly mix together'),
+                ], [new Instruction('lightly mix together')]),
                 new RecipeComponentDto('meringue', 2, [
                     new Ingredient('egg white', 100, 'g'),
                     new Ingredient('water', 60, 'g'),
                     new Ingredient('sugar (syrup)', 230, 'g'),
                     new Ingredient('suger (stabilizer)', 30, 'g'),
-                ], 'syrup to 188C'),
-                new RecipeComponentDto('', 3, [], 'preheat to 300F, macronage meringue and paste together, pipe and bake for 10-17 minutes'),
+                ], [new Instruction('syrup to 188C')]),
+                new RecipeComponentDto('', 3, [], new Instruction('preheat to 300F, macronage meringue and paste together, pipe and bake for 10-17 minutes')),
             ]));
         });
     }
@@ -100,12 +100,24 @@ export default class RecipeApi {
 }
 
 export class RecipeListItemDto {
+    /**
+     * 
+     * @param {String} id 
+     * @param {String} title 
+     */
     constructor(id, title) {
         this.id = id;
         this.title = title;
     }
 }
 export class RecipeDto {
+    /**
+     * 
+     * @param {String} id 
+     * @param {String} title 
+     * @param {String} description 
+     * @param {RecipeComponentDto[]} components 
+     */
     constructor(id, title, description, components) {
         this.id = id;
         this.title = title;
@@ -114,6 +126,13 @@ export class RecipeDto {
     }
 }
 export class RecipeComponentDto {
+    /**
+     * 
+     * @param {String} name 
+     * @param {Number} order 
+     * @param {Ingredient[]} ingredients 
+     * @param {Instruction[]} instructions 
+     */
     constructor(name, order, ingredients, instructions) {
         this.name = name;
         this.order = order;
@@ -122,6 +141,12 @@ export class RecipeComponentDto {
     }
 }
 export class Ingredient {
+    /**
+     * 
+     * @param {String} name 
+     * @param {Number} amount 
+     * @param {String} unit 
+     */
     constructor(name, amount, unit) {
         this.name = name;
         this.amount = amount;
@@ -129,11 +154,23 @@ export class Ingredient {
     }
 }
 export class Instruction {
+    /**
+     * 
+     * @param {String} description 
+     */
     constructor(description) {
         this.description = description;
     }
 }
 export class JournalEntryDto {
+    /**
+     * 
+     * @param {String} id 
+     * @param {String} author 
+     * @param {Date} date 
+     * @param {String} description 
+     * @param {RecipeDto} recipeUsed 
+     */
     constructor(id, author, date, description, recipeUsed) {
         this.id = id;
         this.author = author;
