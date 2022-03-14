@@ -19,19 +19,27 @@ export default class RecipeApi {
      */
     async getRecipe(recipeId) {
         return new Promise((yay, nay) => {
-            yay(new RecipeDto('test2', 'Italian Macarons', 'italian macarons, more stable, first make the paste, then fold in meringue', [
-                new RecipeComponentDto('paste', 1, [
-                    new Ingredient('egg white', '100', 'g'),
-                    new Ingredient('powdered sugar', '250', 'g'),
-                    new Ingredient('almond flour', '260', 'g'),
-                ], [new Instruction('lightly mix together')]),
-                new RecipeComponentDto('meringue', 2, [
+            yay(new RecipeDto('test2', 'Italian Macarons', "Italian macarons, the meringue is more stable", [
+                new RecipeComponentDto('Italian Meringue', 2, [
                     new Ingredient('egg white', 100, 'g'),
                     new Ingredient('water', 60, 'g'),
                     new Ingredient('sugar (syrup)', 230, 'g'),
                     new Ingredient('suger (stabilizer)', 30, 'g'),
-                ], [new Instruction('syrup to 188C')]),
-                new RecipeComponentDto('', 3, [], new Instruction('preheat to 300F, macronage meringue and paste together, pipe and bake for 10-17 minutes')),
+                ], [
+                    new Instruction('Place egg white in mixer and start whipping to foam, once foaming add the stabilizer sugar. Meanwhile mix sugar(syrup) and water and put on heat, heat to 118C then slowly drizzle down the side of the mixing bowl into the foam'),
+                    new Instruction("Continue whipping until stiff, it's been said this is roughly 8 minutes but this isn't confirmed."),
+                    new Instruction("While the meringue is stiffening, continue to eggwhite paste and preheat your oven to 300F"),
+                ]),
+                new RecipeComponentDto('Eggwhite Paste', 1, [
+                    new Ingredient('egg white', '100', 'g'),
+                    new Ingredient('powdered sugar', '250', 'g'),
+                    new Ingredient('almond flour', '260', 'g'),
+                ], [
+                    new Instruction('Fold ingredients carefully together as not to release almond oils.')
+                ]),
+                new RecipeComponentDto('Combining', 3, [], [
+                    new Instruction('Once the meringue has stiff peaks, preheat to 300F, macronage meringue and paste together, pipe and bake for 10-17 minutes'),
+                ]),
             ]));
         });
     }

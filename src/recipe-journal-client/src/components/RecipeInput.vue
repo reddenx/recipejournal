@@ -32,6 +32,12 @@
             :key="component.name + component.order"
           >
             <div class="card-body">
+              Name:
+              <input
+                type="text"
+                class="form-control mb-1"
+                v-model="component.name"
+              />
               <div class="row">
                 <div class="col">
                   Ingredients:

@@ -1,32 +1,30 @@
 <template>
   <div class="container">
-    <div class="row">
-      <div class="col">Recipe Page id:{{ recipeId }}</div>
-      <div class="col">
-        ingredients:
-        <ul
-          v-for="component in recipe.components"
-          :key="component.order + component.name"
-        >
-          <li>
-            {{ component.name }}
-          </li>
-          <li
-            v-for="ingredient in component.ingredients"
-            :key="ingredient.name + ingredient.amount"
-          >
-            {{ ingredient.amount }}{{ ingredient.unit }} - {{ ingredient.name }}
-          </li>
-        </ul>
-      </div>
-      <div class="col">
-        <div
-          v-for="component in recipe.components"
-          :key="component.order + component.name"
-        >
-          {{ component.name }}: {{ component.instructions }}
+    <h2>{{ recipe.title }}</h2>
+    <p>
+      {{ recipe.description }}
+    </p>
+
+    <div v-for="component in recipe.components" :key="component.name">
+      <h3>{{ component.name }}</h3>
+      <div class="row">
+        <div class="col-auto">
+          <div class="card" v-show="component.ingredients.length">
+            <div class="card-body">
+              <div
+                v-for="(ingredient, index) in component.ingredients"
+                :key="index"
+              >
+                {{ ingredient.amount }}{{ ingredient.unit }} -
+                {{ ingredient.name }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+      <p v-for="(instruction, index) in component.instructions" :key="index">
+        {{ instruction.description }}
+      </p>
     </div>
   </div>
 </template>

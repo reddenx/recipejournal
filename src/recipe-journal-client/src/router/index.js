@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import HomePage from '../views/HomePage.vue'
 import RecipePage from '../views/RecipePage'
 import CreateRecipePage from '../views/CreateRecipePage'
+import EditRecipePage from '../views/EditRecipePage'
 
 Vue.use(VueRouter)
 
@@ -25,6 +26,12 @@ const routes = [
     path: '/recipes/:recipeId',
     name: 'recipe',
     component: RecipePage,
+    props: true
+  },
+  {
+    path: '/recipes/:recipeId/edit',
+    name: 'edit recipe',
+    component: EditRecipePage,
     props: true
   },
 ]
