@@ -32,63 +32,109 @@
             :key="component.name + component.order"
           >
             <div class="card-body">
-              Ingredients:
-              <div class="card mb-3">
-                <div class="card-body">
-                  <ul>
-                    <li
-                      v-for="(ingredient, index) in component.ingredients"
-                      :key="index"
-                    >
-                      <input
-                        type="text"
-                        class="form-control"
-                        v-model="ingredient.name"
-                        placeholder="name"
-                      />
-                      <input
-                        type="number"
-                        class="form-control"
-                        v-model="ingredient.amount"
-                        placeholder="amount"
-                      />
-                      <input
-                        type="text"
-                        class="form-control"
-                        v-model="ingredient.unit"
-                        placeholder="unit"
-                      />
-                      <button
-                        type="button"
-                        class="btn btn-danger"
-                        @click="deleteIngredient(component, ingredient)"
-                      >
-                        DELETE
-                      </button>
-                    </li>
-                  </ul>
-                  <button
-                    type="button"
-                    class="btn btn-outline-secondary"
-                    @click="addIngredient(component)"
+              <div class="row">
+                <div class="col">
+                  Ingredients:
+                  <div class="card mb-3">
+                    <div class="card-body">
+                      <ul class="list-group">
+                        <li
+                          class="list-group-item"
+                          v-for="(ingredient, index) in component.ingredients"
+                          :key="index"
+                        >
+                          <div class="row g-1">
+                            <div class="col">
+                              <input
+                                type="text"
+                                class="form-control"
+                                v-model="ingredient.name"
+                                placeholder="name"
+                              />
+                            </div>
+                            <div class="col-2">
+                              <input
+                                type="number"
+                                class="form-control"
+                                v-model="ingredient.amount"
+                                placeholder="amount"
+                              />
+                            </div>
+                            <div class="col-2">
+                              <input
+                                type="text"
+                                class="form-control"
+                                v-model="ingredient.unit"
+                                placeholder="unit"
+                              />
+                            </div>
+                            <div class="col-auto">
+                              <button
+                                type="button"
+                                class="btn btn-danger"
+                                @click="deleteIngredient(component, ingredient)"
+                              >
+                                <span class="fa-solid fa-play"> </span>
+                                -
+                              </button>
+                            </div>
+                          </div>
+                        </li>
+                      </ul>
+                      <div class="d-grid">
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary"
+                          @click="addIngredient(component)"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  Instructions:
+                  <div
+                    v-for="(instruction, index) in component.instructions"
+                    :key="index"
                   >
-                    + Ingredient
+                    <div class="row mb-1">
+                      <div class="col">
+                        <textarea
+                          class="form-control"
+                          v-model="instruction.description"
+                        ></textarea>
+                      </div>
+                      <div class="col-auto">
+                        <button
+                          type="button"
+                          class="btn btn-danger"
+                          @click="deleteInstruction(component, instruction)"
+                        >
+                          -
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="d-grid">
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      @click="addInstruction(component)"
+                    >
+                      +Instruction
+                    </button>
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <button
+                    class="btn btn-danger"
+                    @click="deleteComponent(component)"
+                  >
+                    -
                   </button>
                 </div>
               </div>
-
-              Instructions:
-
-<!-- you left off here building out the instructions add/remove/order inputs -->
-
-              <textarea class="form-control"> </textarea>
-              <button
-                type="button"
-                class="btn btn-outline-secondary"
-                @click="addInstruction(component)"
-              >
-                +Instruction
-              </button>
             </div>
           </div>
 
@@ -130,7 +176,6 @@ export default {
     this.recipe = this.value;
   },
   methods: {
-    save() {},
     addComponent() {
       let largestComponentOrder = 0;
       this.recipe.components.forEach((c) =>
@@ -147,9 +192,24 @@ export default {
         )
       );
     },
+    /**
+     * @param {RecipeComponentDto} component
+     */
+    deleteComponent(component) {
+      this.recipe.components = this.recipe.components.filter(
+        (c) => c !== component
+      );
+    },
+    /**
+     * @param {RecipeComponentDto} component
+     */
     addIngredient(component) {
       component.ingredients.push(new Ingredient("", null, ""));
     },
+    /**
+     * @param {RecipeComponentDto} component
+     * @param {Ingredient} ingredient
+     */
     deleteIngredient(component, ingredient) {
       component.ingredients = component.ingredients.filter(
         (i) => i !== ingredient
@@ -158,6 +218,15 @@ export default {
     /** @param {RecipeComponentDto} component */
     addInstruction(component) {
       component.instructions.push(new Instruction(""));
+    },
+    /**
+     * @param {RecipeComponentDto} component
+     * @param {Instruction} instruction
+     */
+    deleteInstruction(component, instruction) {
+      component.instructions = component.instructions.filter(
+        (i) => i !== instruction
+      );
     },
   },
 };
