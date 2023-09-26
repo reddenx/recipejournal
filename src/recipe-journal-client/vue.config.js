@@ -1,14 +1,18 @@
+const webpack = require('webpack');
+const argv = require('yargs').argv;
+const version = argv?.appVersion || '0.0.0';
+
 module.exports = {
     configureWebpack: {
         plugins: [
-            new this.configureWebpack.DefinePlugin({
+            new webpack.DefinePlugin({
                 'process.appInfo': {
                     appVersion: '"' + version + '"'
                 }
             })
         ]
     },
-    outDir: "../RecipeJournalApi/wwwroot",
+    outputDir: "../RecipeJournalApi/wwwroot",
     filenameHashing: false,
     devServer: {
         proxy: {
