@@ -6,7 +6,7 @@
 
 <script>
 import RecipeInput from "../components/RecipeInput";
-import RecipeApi, { RecipeDto } from "../scripts/recipe_api";
+import RecipeApi, { RecipeDto } from "../scripts/recipe_api-proto";
 
 export default {
   components: { RecipeInput },

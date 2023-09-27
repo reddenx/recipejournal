@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import RecipeApi, { RecipeDto } from "../scripts/recipe_api";
+import RecipeApi, { RecipeDto } from "../scripts/recipe_api-proto";
 
 export default {
   props: {
