@@ -5,9 +5,16 @@ import RecipePage from '../views/RecipePage'
 import CreateRecipePage from '../views/CreateRecipePage'
 import EditRecipePage from '../views/EditRecipePage'
 
+import CookingPage from '../views/CookingPage';
+
 Vue.use(VueRouter)
 
 const routes = [
+  {
+    path: '/cook/:recipeId',
+    component: CookingPage,
+    props: true
+  },
   {
     path: '/',
     name: 'home',
