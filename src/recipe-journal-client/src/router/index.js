@@ -4,6 +4,7 @@ import HomePage from '../views/HomePage.vue'
 import RecipePage from '../views/RecipePage'
 import CreateRecipePage from '../views/CreateRecipePage'
 import EditRecipePage from '../views/EditRecipePage'
+import MockPage from '../views/MockPage';
 
 import CookingPage from '../views/CookingPage';
 
@@ -40,6 +41,11 @@ const routes = [
     name: 'edit recipe',
     component: EditRecipePage,
     props: true
+  },
+  {
+    path:'/mock',
+    name: 'mock',
+    component: MockPage
   },
 ]
 
