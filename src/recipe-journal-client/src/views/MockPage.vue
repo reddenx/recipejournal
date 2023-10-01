@@ -1,14 +1,12 @@
 <template>
     <div class="article-container">
-
-
         <div class="panel">
             <div class="section">
                 <div class="section-title">
                     Italian Macarons -- Some extra text here to see how this wraps
                 </div>
                 <div>
-                    <strong>Author:</strong> sean <strong>Time:</strong> 3 hours <strong>Yields:</strong> 30 cookies 
+                    <strong>Author:</strong> SanthmasMark <strong>Time:</strong> 3 hours <strong>Yields:</strong> 30 cookies 
                     <button type="button" class="slider-button"> ||| </button>
                 </div>
                 <p>
@@ -24,7 +22,7 @@
                 </p>
             </div>
             <div class="section-dark">
-                some stuff could go here, probably buttons
+                Some stuff could go here, probably buttons or scaling
             </div>
             <div class="section">
                 <h3>Ingredients</h3>
@@ -39,12 +37,12 @@
             </div>
             <div class="section">
                 <p>
-                    this section starts several things at once, it may be difficult to get the timing of the syrup
+                    This section starts several things at once, it may be difficult to get the timing of the syrup
                     and the egg white foam, generally starting the eggs on low
                 </p>
             </div>
-            <div class="section">
-                <h4>start eggs</h4>
+            <div class="section section-completed">
+                <h4>Start Eggs</h4>
                 <div class="step-ingredients">
                     <div class="ingredient">egg white: 100g</div>
                     <div class="ingredient">sugar: 30g</div>
@@ -55,7 +53,7 @@
                 </p>
             </div>
             <div class="section">
-                <h4>start syrup</h4>
+                <h4>Start Syrup</h4>
                 <div class="step-ingredients">
                     <div class="ingredient">sugar 230g</div>
                     <div class="ingredient">water 60g</div>
@@ -66,7 +64,7 @@
                 </p>
             </div>
             <div class="section">
-                <h4>start syrup</h4>
+                <h4>Start Syrup</h4>
                 <div class="step-ingredients">
                     <div class="ingredient">sugar 230g</div>
                     <div class="ingredient">water 60g</div>
@@ -76,9 +74,9 @@
                 </p>
             </div>
             <div class="section">
-                <h4>combine</h4>
+                <h4>Combine</h4>
                 <p>
-                    ideally, the syrup will reach 118C around the same time the
+                    Ideally, the syrup will reach 118C around the same time the
                     meringue should be at the right state, this takes practice on
                     timing. The meringue is ready when it\'s still slightly foamy
                     but almost to soft peaks. remove syrup from heat and drizzle
@@ -90,36 +88,36 @@
                 </p>
             </div>
             <div class="section">
-                <h4>the paste</h4>
+                <h4>The Paste</h4>
                 <div class="step-ingredients">
                     <div class="ingredient">egg white 100g</div>
                     <div class="ingredient">powdered sugar 250g</div>
                     <div class="ingredient">almond flour 260g</div>
                 </div>
                 <p>
-                    sift and combine egg white, powdered sugar, and almond floud, mix
+                    Sift and combine egg white, powdered sugar, and almond floud, mix
                     gently trying not to add any air to the mixture
                 </p>
             </div>
             <div class="section">
-                <h4>fold</h4>
+                <h4>Fold</h4>
                 <p>
-                    once the meringue has reached stiff peaks, fold paste and
+                    Once the meringue has reached stiff peaks, fold paste and
                     meringue until right consistency is reached, be sure not to be
                     too forceful and release the oils from the almond floud
                 </p>
             </div>
             <div class="section">
-                <h4>pipe and rest</h4>
+                <h4>Pipe and Rest</h4>
                 <p>
-                    pipe onto silicon mat, let sit until skin is firm enough to bake 
+                    Pipe onto silicon mat, let sit until skin is firm enough to bake 
                     (usually 10-30 min in semi-humid climate)
                 </p>
             </div>
             <div class="section">
-                <h4>bake</h4>
+                <h4>Bake</h4>
                 <p>
-                    bake at 300F for 10-17 minutes, experimentation still required 
+                    Bake at 300F for 10-17 minutes, experimentation still required 
                     here
                 </p>
             </div>
@@ -188,7 +186,7 @@ button.slider-button {
 .panel {
     border: 4px solid rgb(53, 19, 0);
     border-radius: 10px;
-    padding: 25px;
+    padding: 15px 25px;
 }
 .panel p {
     text-align: justify;
@@ -198,13 +196,13 @@ button.slider-button {
     line-height: 1.25;
 }
 .section {
-    margin-top:10px;
+    margin-top:15px;
 }
 .section:nth-child(1) {
     margin-top:0;
 }
 .section-dark {
-    margin-top:10px;
+    margin-top:15px;
     background: rgb(53, 19, 0);
     color: white;
     box-sizing: border-box;
@@ -223,11 +221,15 @@ button.slider-button {
     margin-bottom: 15px;
 }
 .section ~ .section {
-    padding-bottom: 10px;
+    /* padding-bottom: 10px; */
 }
 .section + .section {
     border-top: 2px solid #f0f0f0;
-    padding-top: 10px;
+    padding-top: 15px;
+}
+
+.section.section-completed {
+     text-decoration: line-through; 
 }
 
 </style>
