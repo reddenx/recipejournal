@@ -16,13 +16,15 @@ export default class RecipeApi {
 
 //recipe in full read detail with components, steps, and ingredients
 class RecipeDto {
-    constructor(id, title, description, durationMinutes, servings, components) {
+    constructor(id, title, description, durationMinutes, servings, components, isDraft, isPublic) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.durationMinutes = durationMinutes;
         this.servings = servings;
         this.components = components;
+        this.isDraft = isDraft;
+        this.isPublic = isPublic;
     }
 }
 class RecipeComponentDto {

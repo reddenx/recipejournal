@@ -26,11 +26,12 @@
             </div>
             <div class="section">
                 <h3>Ingredients</h3>
-                <div class="ingredient">egg white: 200g (100g/100g)</div>
-                <div class="ingredient">sugar: 260g (230g/30g)</div>
-                <div class="ingredient">water: 60g</div>
-                <div class="ingredient">powdered sugar: 250g</div>
-                <div class="ingredient">almond flour: 260g</div>
+                <div class="ingredient">Egg White: 200g (100g/100g)</div>
+                <div class="ingredient">Sugar: 260g (230g/30g)</div>
+                <div class="ingredient">Water: 60g</div>
+                <div class="ingredient">Powdered Sugar: 250g</div>
+                <div class="ingredient">Almond Flour: 260g</div>
+                <div class="ingredient">Powdered Sugar: 2cups</div>
             </div>
             <div class="section-dark">
                 <h3>Cookie</h3>
@@ -158,7 +159,6 @@ export default {};
     margin-left: auto;
     margin-right: auto;
 }
-
 
 .body {
     font-family: sans-serif;
