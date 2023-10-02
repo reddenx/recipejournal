@@ -93,6 +93,42 @@ export default {
         },
     },
 };
+
+class IngredientViewmodel {
+    constructor(id, name, unit, amount) {
+        this.id = id;
+        this.name = name;
+        this.unit = unit;
+        this.amount = amount;
+        
+        this.scaledAmount = null; //this indicates that the entire recipe is scaled off this value
+    }
+}
+
+class StepViewmodel {
+    constructor(id, title, body, ingredients) {
+        this.id = id;
+        this.title = title;
+        this.body = body;
+        this.ingredients = ingredients;
+    }
+}
+
+class ComponentViewmodel {
+    constructor(id, title, description, steps) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.steps = steps;
+    }
+}
+
+class RecipeViewmodel {
+    constructor(id, title, description, durationMinutes, servings, components, isDraft, isPublic) {
+
+    }
+}
+
 </script>
 
 <style>
@@ -100,6 +136,7 @@ export default {
     max-width: 40rem;
     margin-left: auto;
     margin-right: auto;
+    padding:.25em;
 }
 
 button.slider-button {
