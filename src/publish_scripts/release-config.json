@@ -1,0 +1,6 @@
+{
+    "Type": "release",
+    "RegexMatcher": "^(v(\\d+\\.\\d+\\.\\d+))$",
+    "RepoName": "recipejournal",
+    "ScriptPath": "sh /home/pi/Hosting/recipejournal/src/publish_scripts/release-publish.sh {0} {1}"
+}

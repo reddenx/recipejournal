@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import RecipeApi from "../scripts/recipe_api";
+import RecipeApi from "../scripts/recipe_api-proto";
 
 export default {
   name: "HomeView",

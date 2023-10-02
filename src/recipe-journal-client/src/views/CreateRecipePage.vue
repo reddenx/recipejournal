@@ -10,7 +10,7 @@
 
 <script>
 import RecipeInput from "../components/RecipeInput";
-import { RecipeDto } from "../scripts/recipe_api";
+import { RecipeDto } from "../scripts/recipe_api-proto";
 
 export default {
   components: { RecipeInput },

@@ -107,6 +107,9 @@ export default class RecipeApi {
     async getRecentJournalEntries(count) { console.error('not implemented'); }
 }
 
+/**
+ * a trimmed down recipe object for use in lists
+ */
 export class RecipeListItemDto {
     /**
      * 
@@ -118,6 +121,7 @@ export class RecipeListItemDto {
         this.title = title;
     }
 }
+
 export class RecipeDto {
     /**
      * 

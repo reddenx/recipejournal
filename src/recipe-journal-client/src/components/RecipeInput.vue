@@ -163,7 +163,7 @@ import {
   Instruction,
   RecipeComponentDto,
   RecipeDto,
-} from "../scripts/recipe_api";
+} from "../scripts/recipe_api-proto";
 
 export default {
   props: {
