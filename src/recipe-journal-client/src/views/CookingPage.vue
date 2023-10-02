@@ -18,21 +18,21 @@
 
             <div class="section">
                 <h3>Ingredients</h3>
-                <div class="ingredient" v-for="(ingredient, i) in allIngredients" :key="i">
+                <div class="ingredient" v-for="ingredient in allIngredients" :key="ingredient.id">
                     {{ ingredient.name }}: {{ ingredient.amount }}{{ getIngredientUnit(ingredient.unit, ingredient.amount) }}
                 </div>
             </div>
 
-            <template v-for="(component, i) in recipe.components">
-                <div v-if="component.title" class="section-dark" :key="i">
+            <template v-for="component in recipe.components">
+                <div v-if="component.title" class="section-dark" :key="component.id">
                     <h3>{{component.title}}</h3>
                 </div>
-                <div v-if="component.description" class="section" :key="i">
+                <div v-if="component.description" class="section" :key="component.id">
                     <p>{{ component.description }}</p>
                 </div>
-                <div class="section" v-for="(step, i) in component.steps" :key="i">
+                <div class="section" v-for="step in component.steps" :key="step.id">
                     <h4>{{ step.title }}</h4>
-                    <div class="ingredient" v-for="(ingredient, i) in step.ingredients" :key="i">
+                    <div class="ingredient" v-for="ingredient in step.ingredients" :key="ingredient.id">
                         {{ ingredient.name }}: {{ ingredient.amount }}
                         {{ getIngredientUnit(ingredient.unit,ingredient.amount) }}
                     </div>
@@ -85,7 +85,6 @@ export default {
         }))
 
         this.allIngredients.push(...summs);
-        
     },
     methods: {
         getIngredientUnit(unit, amount) {
@@ -93,41 +92,6 @@ export default {
         },
     },
 };
-
-class IngredientViewmodel {
-    constructor(id, name, unit, amount) {
-        this.id = id;
-        this.name = name;
-        this.unit = unit;
-        this.amount = amount;
-        
-        this.scaledAmount = null; //this indicates that the entire recipe is scaled off this value
-    }
-}
-
-class StepViewmodel {
-    constructor(id, title, body, ingredients) {
-        this.id = id;
-        this.title = title;
-        this.body = body;
-        this.ingredients = ingredients;
-    }
-}
-
-class ComponentViewmodel {
-    constructor(id, title, description, steps) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.steps = steps;
-    }
-}
-
-class RecipeViewmodel {
-    constructor(id, title, description, durationMinutes, servings, components, isDraft, isPublic) {
-
-    }
-}
 
 </script>
 
