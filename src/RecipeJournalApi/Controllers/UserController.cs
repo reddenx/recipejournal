@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace RecipeJournalApi.Controllers
 {
     [Authorize]
-    [Route("api/users")]
+    [Route("api/v1/users")]
     public class UserController : Controller
     {
         private readonly ILogger<UserController> _logger;

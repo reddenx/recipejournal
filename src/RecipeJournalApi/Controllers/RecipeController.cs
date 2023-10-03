@@ -58,8 +58,8 @@ namespace RecipeJournalApi.Controllers
                     Author = recipe.Author,
                     Description = recipe.Description,
                     DurationMinutes = recipe.DurationMinutes,
-                    IsDraft = !recipe.IsDraft,
-                    IsPublic = !recipe.IsPublic,
+                    IsDraft = recipe.IsDraft,
+                    IsPublic = recipe.IsPublic,
                     Servings = recipe.Servings,
                     Components = recipe.Components.Select(c => new RecipeDto.RecipeComponentDto
                     {

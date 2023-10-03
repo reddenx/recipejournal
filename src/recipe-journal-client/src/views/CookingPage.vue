@@ -13,7 +13,7 @@
             </div>
 
             <div class="section-dark">
-                Some stuff could go here, probably buttons or scaling
+                {{recipe.isPublic ? 'PUBLIC' : 'PRIVATE'}} | {{recipe.isDraft ? 'DRAFT' : 'PUBLISHED'}}
             </div>
 
             <div class="section">
