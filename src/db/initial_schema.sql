@@ -8,6 +8,8 @@ grant all privileges on recipe.* to 'recipe_user';
 
 use recipe;
 
+drop table if exists ingredient_ingredient_category;
+drop table if exists ingredient_category;
 drop table if exists ingredient;
 drop table if exists step_ingredient;
 drop table if exists recipe_step;
@@ -32,7 +34,7 @@ create table recipe
     ,DateCreated datetime not null
     ,VersionDate datetime not null
     ,Title varchar(800) not null
-    ,`Description` ntext null
+    ,`Description` text null
     ,DurationMinutes int null
     ,Servings int null
     ,Published bit not null
@@ -44,7 +46,7 @@ create table recipe_component
     Id varchar(32) primary key not null
     ,RecipeId varchar(32) not null
     ,Title varchar(800) null
-    ,`Description` ntext null
+    ,`Description` text null
 );
 
 create table recipe_step
@@ -53,7 +55,7 @@ create table recipe_step
     ,RecipeId varchar(32) not null
     ,ComponentId varchar(32) not null
     ,Title varchar(800) null
-    ,Body ntext null
+    ,Body text null
 );
 
 create table step_ingredient
@@ -71,8 +73,8 @@ create table ingredient
 (
     Id varchar(32) not null
     ,`Name` varchar(800) not null
-    ,`Description` ntext null
-    ,DateCreated datetime not null,
+    ,`Description` text null
+    ,DateCreated datetime not null
 );
 
 create table ingredient_category
@@ -87,4 +89,4 @@ create table ingredient_ingredient_category
     ,IngredientId varchar(32) not null
 );
 
-insert into `account` (id, username) values ('00000000000000000000000000000001', 'sean');
+insert into `account` (id, username, permissionsrole, datecreated) values ('00000000000000000000000000000001', 'sean', 'admin', curdate());
