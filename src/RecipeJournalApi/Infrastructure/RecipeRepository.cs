@@ -226,7 +226,7 @@ namespace RecipeJournalApi.Controllers
                         VersionDate = @VersionDate,
                         Title = @Title,
                         Description = @Description,
-                        DurationMinuted = @DurationMinutes,
+                        DurationMinutes = @DurationMinutes,
                         Servings = @Servings,
                         Published = @Published,
                         Public = @Public
@@ -238,6 +238,7 @@ namespace RecipeJournalApi.Controllers
                         VersionDate = DateTime.Now,
                         Title = update.Title,
                         Description = update.Description,
+                        DurationMinutes = update.DurationMinutes,
                         Servings = update.Servings,
                         Published = !update.IsDraft,
                         Public = update.IsPublic
