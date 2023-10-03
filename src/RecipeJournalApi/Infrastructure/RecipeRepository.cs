@@ -201,19 +201,19 @@ namespace RecipeJournalApi.Controllers
                     var newVersion = current.Version + 1;
 
                     const string sqlDelComponents = @"
-                    delete recipe_component
+                    delete from recipe_component
                     where RecipeId = @Id";
 
                     conn.Execute(sqlDelComponents, new { Id = current.Id });
 
                     const string sqlDelSteps = @"
-                    delete recipe_step
+                    delete from recipe_step
                     where RecipeId = @Id";
 
                     conn.Execute(sqlDelSteps, new { Id = current.Id });
 
                     const string sqlDelIngredients = @"
-                    delete step_ingredient
+                    delete from step_ingredient
                     where RecipeId = @Id";
 
                     conn.Execute(sqlDelIngredients, new { Id = current.Id });
