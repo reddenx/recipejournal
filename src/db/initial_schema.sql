@@ -66,7 +66,7 @@ create table step_ingredient
     ,IngredientId varchar(32) not null
     ,Unit varchar(20) not null
     ,Amount int not null
-    ,`Description` int not null
+    ,`Description` text not null
 );
 
 create table ingredient

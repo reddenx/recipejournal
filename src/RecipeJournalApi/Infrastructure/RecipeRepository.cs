@@ -129,7 +129,7 @@ namespace RecipeJournalApi.Controllers
                 s.ComponentId,
                 s.Title,
                 s.Body
-            from recipe_step
+            from recipe_step s
             where s.RecipeId = @Id";
             var sqlIngredients = @"
             select
@@ -182,7 +182,7 @@ namespace RecipeJournalApi.Controllers
                 var recipes = conn.Query<RecipeData>(sqlRecipe, new { Id = userId?.ToString("N") }).ToArray();
                 return recipes.Select(r => new RecipeListItem
                 {
-                    Id = r.Id,
+                    Id = Guid.Parse(r.Id),
                     DurationMinutes = r.DurationMinutes,
                     Servings = r.Servings,
                     Title = r.Title
@@ -201,22 +201,22 @@ namespace RecipeJournalApi.Controllers
                     var newVersion = current.Version + 1;
 
                     const string sqlDelComponents = @"
-                    delete recipe_component
+                    delete from recipe_component
                     where RecipeId = @Id";
 
-                    conn.Execute(sqlDelComponents, new { Id = current.Id });
+                    conn.Execute(sqlDelComponents, new { Id = current.Id.ToString("N") });
 
                     const string sqlDelSteps = @"
-                    delete recipe_step
+                    delete from recipe_step
                     where RecipeId = @Id";
 
-                    conn.Execute(sqlDelSteps, new { Id = current.Id });
+                    conn.Execute(sqlDelSteps, new { Id = current.Id.ToString("N") });
 
                     const string sqlDelIngredients = @"
-                    delete step_ingredient
+                    delete from step_ingredient
                     where RecipeId = @Id";
 
-                    conn.Execute(sqlDelIngredients, new { Id = current.Id });
+                    conn.Execute(sqlDelIngredients, new { Id = current.Id.ToString("N") });
 
                     //TODO write version select so multiple versions can exist in the db
                     const string sqlUpdateRecipe = @"
@@ -226,7 +226,7 @@ namespace RecipeJournalApi.Controllers
                         VersionDate = @VersionDate,
                         Title = @Title,
                         Description = @Description,
-                        DurationMinuted = @DurationMinutes,
+                        DurationMinutes = @DurationMinutes,
                         Servings = @Servings,
                         Published = @Published,
                         Public = @Public
@@ -238,9 +238,11 @@ namespace RecipeJournalApi.Controllers
                         VersionDate = DateTime.Now,
                         Title = update.Title,
                         Description = update.Description,
+                        DurationMinutes = update.DurationMinutes,
                         Servings = update.Servings,
                         Published = !update.IsDraft,
-                        Public = update.IsPublic
+                        Public = update.IsPublic,
+                        Id = recipeId.Value.ToString("N")
                     });
                 }
                 else
@@ -315,7 +317,8 @@ namespace RecipeJournalApi.Controllers
                                 StepId = stepId.ToString("N"),
                                 Unit = ingredient.Unit,
                                 Amount = ingredient.Amount,
-                                Description = "" //TODO this is a missing feature right now
+                                Description = "", //TODO this is a missing feature right now
+                                Name = ingredient.Name
                             });
                             if (amount == 0)
                             {
@@ -334,7 +337,8 @@ namespace RecipeJournalApi.Controllers
                                     StepId = stepId.ToString("N"),
                                     Unit = ingredient.Unit,
                                     Amount = ingredient.Amount,
-                                    Description = "" //TODO this is a missing feature right now
+                                    Description = "", //TODO this is a missing feature right now
+                                    Name = ingredient.Name
                                 });
                             }
                         }
@@ -349,9 +353,9 @@ namespace RecipeJournalApi.Controllers
         {
             return new Recipe
             {
-                Id = recipe.Id,
+                Id = Guid.Parse(recipe.Id),
                 Author = recipe.Username,
-                AuthorId = recipe.AccountId,
+                AuthorId = Guid.Parse(recipe.AccountId),
                 DateCreated = recipe.DateCreated,
                 Description = recipe.Description,
                 DurationMinutes = recipe.DurationMinutes,
@@ -363,21 +367,21 @@ namespace RecipeJournalApi.Controllers
                 VersionDate = recipe.VersionDate,
                 Components = components.Select(c => new Recipe.RecipeComponent
                 {
-                    Id = c.Id,
+                    Id = Guid.Parse(c.Id),
                     Title = c.Title,
                     Description = c.Description,
                     Steps = steps.Where(s => s.ComponentId == c.Id).Select(s => new Recipe.RecipeStep
                     {
-                        Id = s.Id,
+                        Id = Guid.Parse(s.Id),
                         Title = s.Title,
                         Body = s.Body,
                         Ingredients = ingredients.Where(i => i.StepId == s.Id).Select(i => new Recipe.RecipeIngredient
                         {
-                            Id = i.Id,
+                            Id = Guid.Parse(i.Id),
                             Name = i.Name,
                             Amount = i.Amount,
                             Description = i.Description,
-                            IngredientId = i.IngredientId,
+                            IngredientId = Guid.Parse(i.IngredientId),
                             Unit = i.Unit
                         }).ToArray(),
                     }).ToArray(),
@@ -387,8 +391,8 @@ namespace RecipeJournalApi.Controllers
 
         class RecipeData
         {
-            public Guid Id { get; set; }
-            public Guid AccountId { get; set; }
+            public string Id { get; set; }
+            public string AccountId { get; set; }
             public string Username { get; set; }
             public int Version { get; set; }
             public DateTime DateCreated { get; set; }
@@ -402,24 +406,24 @@ namespace RecipeJournalApi.Controllers
         }
         class RecipeComponentData
         {
-            public Guid Id { get; set; }
-            public Guid RecipeId { get; set; }
+            public string Id { get; set; }
+            public string RecipeId { get; set; }
             public string Title { get; set; }
             public string Description { get; set; }
         }
         class RecipeStepData
         {
-            public Guid Id { get; set; }
-            public Guid RecipeId { get; set; }
-            public Guid ComponentId { get; set; }
+            public string Id { get; set; }
+            public string RecipeId { get; set; }
+            public string ComponentId { get; set; }
             public string Title { get; set; }
             public string Body { get; set; }
         }
         class RecipeIngredientData
         {
-            public Guid Id { get; set; }
-            public Guid StepId { get; set; }
-            public Guid IngredientId { get; set; }
+            public string Id { get; set; }
+            public string StepId { get; set; }
+            public string IngredientId { get; set; }
             public string Name { get; set; }
             public string Unit { get; set; }
             public int Amount { get; set; }
