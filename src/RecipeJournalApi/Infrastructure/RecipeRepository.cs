@@ -278,8 +278,8 @@ namespace RecipeJournalApi.Controllers
                 from ingredient i
                 where i.`Name` = @Name";
                 const string sqlInsertIngredient = @"
-                insert into ingredient (Id, `Name`, `Description`)
-                values (@Id, @Name, @Description)";
+                insert into ingredient (Id, `Name`, `Description`, DateCreated)
+                values (@Id, @Name, @Description, @DateCreated)";
                 foreach (var component in update.Components)
                 {
                     var componentId = component.Id ?? Guid.NewGuid();
@@ -321,9 +321,10 @@ namespace RecipeJournalApi.Controllers
                             {
                                 conn.Execute(sqlInsertIngredient, new
                                 {
-                                    Id = Guid.NewGuid(),
+                                    Id = Guid.NewGuid().ToString("N"),
                                     Name = ingredient.Name,
                                     Description = "",
+                                    DateCreated = DateTime.Now,
                                 });
                                 //and do it agaaaaiiiinn lol
                                 conn.Execute(sqlInsertStepIngredient, new

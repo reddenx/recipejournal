@@ -20,6 +20,8 @@ create table account
 (
     Id varchar(32) primary key not null
     ,Username varchar(60) not null
+    ,PermissionsRole varchar(120) not null
+    ,DateCreated datetime not null
 );
 
 create table recipe
@@ -70,6 +72,7 @@ create table ingredient
     Id varchar(32) not null
     ,`Name` varchar(800) not null
     ,`Description` ntext null
+    ,DateCreated datetime not null,
 );
 
 create table ingredient_category
