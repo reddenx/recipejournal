@@ -5,8 +5,14 @@ export default class RecipeApi {
     async getRecipeDetails(id) {
         return recipes.find(r => r.id == id);
     }
-    async updateRecipe(updateRecipeDto) { }
-    async createRecipe(createRecipeDto) { }
+    async updateRecipe(recipeDto) { 
+        console.log(JSON.stringify(recipeDto));
+        
+        return true;
+    }
+    async createRecipe() { 
+        return new RecipeDto(Math.random() + '_', '', '', 'sean', 0, 0, [], true, false);
+    }
     async getRecipeJournal(id) { }
     async addRecipeJournalEntry(createJournalEntryDto) { }
     async updateRecipeJournalEntry(updateJournalEntryDto) { }
@@ -54,7 +60,7 @@ export class RecipeIngredientDto {
 }
 
 //recipe list item with just description and display metadata
-class RecipeListDto {
+export class RecipeListDto {
     constructor(id, title, durationMinutes, servings) {
         this.id = id;
         this.title = title;

@@ -9,6 +9,7 @@
         :value="value"
         @input="$emit('input', $event.target.value)"
         :placeholder="label"
+        :style="{width: length + 'em'}"
       />
       <button class="edit-button" type="button" @click="isEditing = false">C</button>
     </div>
@@ -20,6 +21,7 @@ export default {
   props: {
     value: String,
     label: String,
+    length: Number,
   },
   data: () => ({ isEditing: false }),
 };

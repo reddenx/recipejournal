@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-// import HomePage from '../views/HomePage.vue'
+import HomePage from '../views/HomePage.vue'
 // import RecipePage from '../views/RecipePage'
 // import CreateRecipePage from '../views/CreateRecipePage'
 // import EditRecipePage from '../views/EditRecipePage'
 
-import MockPage from '../views/MockPage';
+// import MockPage from '../views/MockPage';
 import CookingPage from '../views/CookingPage';
 import CookingListPage from "../views/CookingListPage";
 import RecipeCmsPage from "../views/RecipeCmsPage";
@@ -23,15 +23,15 @@ const routes = [
     component: CookingListPage,
   },
   {
-    path: '/cms/:id',
+    path: '/cms/:id?',
     component: RecipeCmsPage,
     props: true,
   },
-  // {
-  //   path: '/',
-  //   name: 'home',
-  //   component: HomePage
-  // },
+  {
+    path: '/',
+    name: 'home',
+    component: HomePage
+  },
   // {
   //   path: '/recipes',
   //   name: 'recipe list',
@@ -53,11 +53,11 @@ const routes = [
   //   component: EditRecipePage,
   //   props: true
   // },
-  {
-    path:'/mock',
-    name: 'mock',
-    component: MockPage
-  },
+  // {
+  //   path:'/mock',
+  //   name: 'mock',
+  //   component: MockPage
+  // },
 ]
 
 const router = new VueRouter({

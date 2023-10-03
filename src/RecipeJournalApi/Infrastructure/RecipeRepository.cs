@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using static RecipeJournalApi.Controllers.RecipeController;
 
 namespace RecipeJournalApi.Controllers
 {
@@ -15,12 +16,14 @@ namespace RecipeJournalApi.Controllers
     {
         Recipe GetRecipe(Guid id);
         RecipeListItem[] GetRecipesForUser(Guid userId);
-        bool UpdateRecipe(Recipe update);
+        Recipe UpdateRecipe(RecipeDto update);
     }
     public class RecipeListItem
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
+        public int? DurationMinutes { get; set; }
+        public int? Servings { get; set; }
     }
     public class Recipe
     {
@@ -28,12 +31,14 @@ namespace RecipeJournalApi.Controllers
         public string Author { get; set; }
         public Guid AuthorId { get; set; }
         public int Version { get; set; }
-        public DateTime DateCreated { get; set; }
+        public DateTime? DateCreated { get; set; }
         public DateTime VersionDate { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public int? DurationMinutes { get; set; }
         public int? Servings { get; set; }
+        public bool IsDraft { get; set; }
+        public bool IsPublic { get; set; }
 
         public RecipeComponent[] Components { get; set; }
 
@@ -82,7 +87,7 @@ namespace RecipeJournalApi.Controllers
             }).ToArray();
         }
 
-        public bool UpdateRecipe(Recipe update)
+        public Recipe UpdateRecipe(RecipeDto update)
         {
             throw new NotImplementedException();
         }

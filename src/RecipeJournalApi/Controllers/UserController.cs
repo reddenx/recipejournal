@@ -14,10 +14,12 @@ namespace RecipeJournalApi.Controllers
     public class UserController : Controller
     {
         private readonly ILogger<UserController> _logger;
+        private readonly IUserRepository _userRepo;
 
-        public UserController(ILogger<UserController> logger)
+        public UserController(ILogger<UserController> logger, IUserRepository userRepo)
         {
             _logger = logger;
+            _userRepo = userRepo;
         }
 
         [HttpGet("")]
@@ -47,18 +49,10 @@ namespace RecipeJournalApi.Controllers
         public async Task<IActionResult> Login([FromBody] LoginDto login)
         {
             //TODO validate login
+            var user = _userRepo.GetUser(login.Username);
 
             var authProperties = new AuthenticationProperties();
-            var claims = new[]
-            {
-                new Claim("username", login.Username),
-                new Claim("access-level", "admin") 
-                //todo: 
-                // anon: readonly recipes
-                // user: normal user, signed up anonymously, allowed to do normal user stuff like create recipes
-                // contributor: user + modify categories and ingredients
-                // admin: user/contributor + modify users
-            };
+            var claims = user.ToClaims();
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
