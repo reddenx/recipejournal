@@ -275,13 +275,13 @@ namespace RecipeJournalApi.Controllers
 
                 //TODO research tvp insert for mariadb
                 const string sqlInsertStep = @"
-                insert into recipe_step (Id, RecipeId, ComponentId, Number, Title, Body)
+                insert into recipe_step (Id, RecipeId, ComponentId, `Number`, Title, Body)
                 values (@Id, @RecipeId, @ComponentId, @Number, @Title, @Body)";
                 const string sqlInsertComponent = @"
-                insert into recipe_component (Id, RecipeId, Number, Title, `Description`)
+                insert into recipe_component (Id, RecipeId, `Number`, Title, `Description`)
                 values (@Id, @RecipeId, @Number, @Title, @Description)";
                 const string sqlInsertStepIngredient = @"
-                insert into step_ingredient (Id, RecipeId, StepId, IngredientId, Number, Unit, Amount, `Description`)
+                insert into step_ingredient (Id, RecipeId, StepId, IngredientId, `Number`, Unit, Amount, `Description`)
                 select @Id, @RecipeId, @StepId, i.Id, @Number, @Unit, @Amount, @Description
                 from ingredient i
                 where i.`Name` = @Name";
