@@ -86,7 +86,7 @@ namespace RecipeJournalApi.Controllers
                 return new UserInfo
                 {
                     AccessLevel = userData.PermissionsRole,
-                    Id = userData.Id,
+                    Id = Guid.Parse(userData.Id),
                     Username = userData.Username
                 };
             }
@@ -108,7 +108,7 @@ namespace RecipeJournalApi.Controllers
                 return new UserInfo
                 {
                     AccessLevel = userData.PermissionsRole,
-                    Id = userData.Id,
+                    Id = Guid.Parse(userData.Id),
                     Username = userData.Username
                 };
             }
@@ -116,7 +116,7 @@ namespace RecipeJournalApi.Controllers
 
         class UserData
         {
-            public Guid Id { get; set; }
+            public string Id { get; set; }
             public string Username { get; set; }
             public string PermissionsRole { get; set; }
         }
