@@ -317,7 +317,8 @@ namespace RecipeJournalApi.Controllers
                                 StepId = stepId.ToString("N"),
                                 Unit = ingredient.Unit,
                                 Amount = ingredient.Amount,
-                                Description = "" //TODO this is a missing feature right now
+                                Description = "", //TODO this is a missing feature right now
+                                Name = ingredient.Name
                             });
                             if (amount == 0)
                             {
