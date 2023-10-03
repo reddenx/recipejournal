@@ -1,4 +1,5 @@
 using System;
+using System.Data.Common;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -10,20 +11,32 @@ using Microsoft.Extensions.Logging;
 namespace RecipeJournalApi.Controllers
 {
     [Authorize]
-    [Route("api/users")]
+    [Route("api/v1/users")]
     public class UserController : Controller
     {
         private readonly ILogger<UserController> _logger;
+        private readonly IUserRepository _userRepo;
 
-        public UserController(ILogger<UserController> logger)
+        public UserController(ILogger<UserController> logger, IUserRepository userRepo)
         {
             _logger = logger;
+            _userRepo = userRepo;
         }
 
         [HttpGet("")]
         public IActionResult GetLoggedInUserInfo()
         {
-            throw new NotImplementedException();
+            var user = UserInfo.FromClaimsPrincipal(this.User);
+            if (user != null)
+            {
+                return Json(new
+                {
+                    UserId = user.Id.ToString("N"),
+                    Username = user.Username,
+                    AccessLevel = user.AccessLevel,
+                });
+            }
+            return StatusCode(404);
         }
 
         public class CreateUserDto
@@ -47,18 +60,10 @@ namespace RecipeJournalApi.Controllers
         public async Task<IActionResult> Login([FromBody] LoginDto login)
         {
             //TODO validate login
+            var user = _userRepo.GetUser(login.Username);
 
             var authProperties = new AuthenticationProperties();
-            var claims = new[]
-            {
-                new Claim("username", login.Username),
-                new Claim("access-level", "admin") 
-                //todo: 
-                // anon: readonly recipes
-                // user: normal user, signed up anonymously, allowed to do normal user stuff like create recipes
-                // contributor: user + modify categories and ingredients
-                // admin: user/contributor + modify users
-            };
+            var claims = user.ToClaims();
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);

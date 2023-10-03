@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RecipeJournalApi.Controllers;
 using System;
 using System.Threading.Tasks;
 
@@ -16,6 +17,8 @@ namespace RecipeJournalApi
             builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
             // Add services to the container.
+            builder.Services.AddSingleton<IRecipeRepository, MockRecipeRepository>();
+            builder.Services.AddSingleton<IUserRepository, MockUserRepository>();
 
             builder.Services.AddControllers();
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>

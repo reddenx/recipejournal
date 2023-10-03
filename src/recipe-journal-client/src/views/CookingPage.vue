@@ -13,7 +13,7 @@
             </div>
 
             <div class="section-dark">
-                Some stuff could go here, probably buttons or scaling
+                {{recipe.isPublic ? 'PUBLIC' : 'PRIVATE'}} | {{recipe.isDraft ? 'DRAFT' : 'PUBLISHED'}}
             </div>
 
             <div class="section">
@@ -50,6 +50,28 @@ import RecipeApi from "../scripts/recipeApi";
 import Units from "../scripts/units";
 
 const recipeApi = new RecipeApi();
+export function compressIngredients(recipeDto) {
+
+    let ingredientSum = {};
+    recipeDto.components.forEach((c) =>
+        c.steps.forEach((s) =>
+            s.ingredients?.forEach((i) => {
+                if (!ingredientSum[i.name + i.unit]) {
+                    ingredientSum[i.name + i.unit] = [];
+                }
+                ingredientSum[i.name + i.unit].push(i);
+            })
+        )
+    );
+
+    let summs = Object.values(ingredientSum).map(i => ({
+        name: i[0].name + (i.length > 1 ? '*' : ''),
+        unit: i[0].unit,
+        amount: i.reduce((sum, item) => sum + item.amount, 0)
+    }))
+
+    return summs;
+}
 
 export default {
     props: {
@@ -159,9 +181,9 @@ button.slider-button {
     line-height: 1;
     margin-bottom: 15px;
 }
-.section ~ .section {
-    /* padding-bottom: 10px; */
-}
+/* .section ~ .section {
+    padding-bottom: 10px;
+} */
 .section + .section {
     border-top: 2px solid #f0f0f0;
     padding-top: 15px;
