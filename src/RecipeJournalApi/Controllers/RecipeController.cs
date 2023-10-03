@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -117,9 +118,11 @@ namespace RecipeJournalApi.Controllers
         }
 
         [HttpPut("")]
+        [Authorize]
         public ActionResult<RecipeDto> UpdateRecipe(RecipeDto recipeDto)
         {
-            var updated = _recipeRepo.UpdateRecipe(recipeDto);
+            var user = UserInfo.FromClaimsPrincipal(this.User);
+            var updated = _recipeRepo.UpdateRecipe(recipeDto, user);
             var dto = RecipeDto.FromDataType(updated);
             return dto;
         }

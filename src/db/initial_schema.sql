@@ -30,9 +30,11 @@ create table recipe
     ,DateCreated datetime not null
     ,VersionDate datetime not null
     ,Title varchar(800) not null
-    ,`Description` text null
+    ,`Description` ntext null
     ,DurationMinutes int null
     ,Servings int null
+    ,Published bit not null
+    ,Public bit not null
 );
 
 create table recipe_component
@@ -40,20 +42,22 @@ create table recipe_component
     Id varchar(32) primary key not null
     ,RecipeId varchar(32) not null
     ,Title varchar(800) null
-    ,`Description` text null
+    ,`Description` ntext null
 );
 
 create table recipe_step
 (
     Id varchar(32) primary key not null
+    ,RecipeId varchar(32) not null
     ,ComponentId varchar(32) not null
     ,Title varchar(800) null
-    ,Body text null
+    ,Body ntext null
 );
 
 create table step_ingredient
 (
     Id varchar(32) not null
+    ,RecipeId varchar(32) not null
     ,StepId varchar(32) not null
     ,IngredientId varchar(32) not null
     ,Unit varchar(20) not null
@@ -65,7 +69,7 @@ create table ingredient
 (
     Id varchar(32) not null
     ,`Name` varchar(800) not null
-    ,`Description` text null
+    ,`Description` ntext null
 );
 
 create table ingredient_category
