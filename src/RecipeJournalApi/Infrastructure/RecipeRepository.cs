@@ -89,7 +89,47 @@ namespace RecipeJournalApi.Controllers
 
         public Recipe UpdateRecipe(RecipeDto update)
         {
-            throw new NotImplementedException();
+            if (update.Id.HasValue)
+                _recipeDB.RemoveAll(r => r.Id == update.Id);
+
+            var updatedRecipe = new Recipe
+            {
+                Author = "sean",
+                AuthorId = MockUserRepository.MOCK_USER,
+                DateCreated = DateTime.Now,
+                Description = update.Description,
+                DurationMinutes = update.DurationMinutes,
+                Id = update.Id ?? Guid.NewGuid(),
+                IsDraft = update.IsDraft,
+                IsPublic = update.IsPublic,
+                Servings = update.Servings,
+                Title = update.Title,
+                Version = 1,
+                VersionDate = DateTime.Now,
+                Components = update.Components.Select(c => new Recipe.RecipeComponent
+                {
+                    Description = c.Description,
+                    Id = c.Id ?? Guid.NewGuid(),
+                    Title = c.Title,
+                    Steps = c.Steps.Select(s => new Recipe.RecipeStep
+                    {
+                        Body = s.Body,
+                        Id = s.Id ?? Guid.NewGuid(),
+                        Title = s.Title,
+                        Ingredients = s.Ingredients.Select(i => new Recipe.RecipeIngredient
+                        {
+                            Amount = i.Amount,
+                            Description = "this field probably needs to be pushed through the layers",
+                            Id = i.Id ?? Guid.NewGuid(),
+                            IngredientId = Guid.NewGuid(),
+                            Name = i.Name,
+                            Unit = i.Unit
+                        }).ToArray(),
+                    }).ToArray(),
+                }).ToArray()
+            };
+            _recipeDB.Add(updatedRecipe);
+            return updatedRecipe;
         }
 
         private static readonly List<Recipe> _recipeDB = new List<Recipe>()
