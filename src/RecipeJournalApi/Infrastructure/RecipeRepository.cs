@@ -241,7 +241,8 @@ namespace RecipeJournalApi.Controllers
                         DurationMinutes = update.DurationMinutes,
                         Servings = update.Servings,
                         Published = !update.IsDraft,
-                        Public = update.IsPublic
+                        Public = update.IsPublic,
+                        Id = recipeId.Value.ToString("N")
                     });
                 }
                 else
