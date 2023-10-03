@@ -7,10 +7,10 @@
     <div v-if="isEditing" class="editing-container">
       <input
         class="value-input"
-        :style="{'width': width + 'em'}"
+        :style="{'width': length + 'em'}"
         type="number"
         :value="value"
-        @input="$emit('input', $event.target.value)"
+        @input="$emit('input', Number($event.target.value))"
         :placeholder="label"
       />
       <button class="save-button" type="button" @click="isEditing = false">
@@ -24,7 +24,7 @@
 export default {
   props: {
     value: Number,
-    width: {
+    length: {
       type: Number,
       default: 4,
     },

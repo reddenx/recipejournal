@@ -2,7 +2,7 @@
   <div class="article-container" v-if="recipe">
     <div class="panel">
       <div class="section">
-        ID: {{ recipe.id }}
+        <!-- ID: {{ recipe.id ? recipe.id : 'NEW!' }} -->
         <button @click="saveRecipe" class="save-button" type="button">Save</button>
         <div class="section-title">
           <text-input v-model="recipe.title" :label="'title'" />
@@ -23,16 +23,23 @@
         </p>
       </div>
 
-      <div class="section-dark">Mode: Public | Draft</div>
+      <div class="section-dark">
+        Mode: 
+        <toggle-input v-model="recipe.isPublic" :enabledText="'PUBLIC'" :disabledText="'PRIVATE'" />
+         | 
+         <toggle-input v-model="recipe.isDraft" :enabledText="'DRAFT'" :disabledText="'PUBLISHED'" />
+      </div>
 
       <div class="section">
         <h3>Ingredients</h3>
-        TBD
+        <div v-for="(ingredient, i ) in ingredients" :key="ingredient.id + '-' + i">
+          {{ingredient.name ? ingredient.name : 'INGREDIENT?'}} {{ingredient.amount}} {{getUnitForQty(ingredient.unit, ingredient.amount)}}
+        </div>
       </div>
 
-      <template v-for="component in recipe.components">
-        ID: {{ component.id }}
-        <div class="section-dark" :key="component.id + 'h'">
+      <template v-for="(component, i) in recipe.components">
+        <!-- ID: {{ component.id ? component.id : 'NEW' }} -->
+        <div class="section-dark" :key="component.id + 'h' + i">
           <button
             class="remove-component-button"
             @click="removeComponent(component)"
@@ -45,9 +52,8 @@
         </div>
 
         <div
-          v-if="component.description"
           class="section"
-          :key="component.id + 'd'"
+          :key="component.id + 'd' + i"
         >
           <textbox-input
             v-model="component.description"
@@ -57,8 +63,8 @@
 
         <div
           class="section"
-          v-for="step in component.steps"
-          :key="component.id + step.id"
+          v-for="(step, j) in component.steps"
+          :key="component.id + step.id + i + '-' + j"
         >
           <button
             class="remove-step-button"
@@ -66,20 +72,20 @@
           >
             D
           </button>
-          ID: {{ step.id }}
+          <!-- ID: {{ step.id ? step.id : 'NEW' }} -->
           <h4>
             <text-input v-model="step.title" :label="'title'" />
           </h4>
           <div
-            class="ingredient"
-            v-for="ingredient in step.ingredients"
-            :key="ingredient.id"
+            class=""
+            v-for="(ingredient, k) in step.ingredients"
+            :key="ingredient.id + i + '-' + j + '-' + k"
           >
             <button @click="removeIngredient(step, ingredient)">D</button>
-            ID: {{ ingredient.id }}
-            <text-input v-model="ingredient.name" :label="'ingredient'" /> | 
-            <text-input v-model="ingredient.unit" :label="'unit'" /> | 
-            <number-input v-model="ingredient.amount" :label="'amount'" />
+            <!-- ID: {{ ingredient.id ? ingredient.id : 'NEW' }} -->
+            <text-input v-model="ingredient.name" :label="'ingredient'" :length="8" /> | 
+            <text-input v-model="ingredient.unit" :label="'unit'" :length="3" /> | 
+            <number-input v-model="ingredient.amount" :label="'amount'" :length="3" />
           </div>
           <button type="button" @click="addIngredient(step)">
             + ingredient
@@ -88,9 +94,11 @@
             <textbox-input v-model="step.body" :label="'step description'" />
           </p>
         </div>
+        <div class="section-dark" :key="component.id + 'n' + i">
+          <button class="add-step-button" @click="addStep(component)">+ step</button>
+        </div>
       </template>
-      <div class="section-dark">
-        <button class="add-step-button" @click="addStep">+ step</button>
+      <div class="section">
         <button class="add-component-button" @click="addComponent">
           + component
         </button>
@@ -109,23 +117,42 @@ import RecipeApi, {
 import TextboxInput from "../components/cms/TextBoxInput.vue";
 import TextInput from "../components/cms/TextInput.vue";
 import NumberInput from "../components/cms/NumberInput.vue";
+import ToggleInput from '../components/cms/ToggleInput.vue';
+import { compressIngredients } from "./CookingPage.vue";
+import Units from '../scripts/units';
 
 const recipeApi = new RecipeApi();
 
 export default {
-  components: { TextboxInput, TextInput, NumberInput },
+  components: { TextboxInput, TextInput, NumberInput, ToggleInput },
   props: {
     id: String,
   },
   data: () => ({
     recipe: null,
+    ingredients: [],
   }),
+  watch: {
+    recipe: {
+      deep: true,
+      handler() {
+        this.ingredients = compressIngredients(this.recipe);
+      }
+    },
+  },
   async mounted() {
-    this.recipe = await recipeApi.getRecipeDetails(this.id);
+    if(this.id) {
+      this.recipe = await recipeApi.getRecipeDetails(this.id);
+    } else {
+      this.recipe = new RecipeDto(null, '', '', 'sean', 0, 0, [], true, false);
+    }
   },
   methods: {
+    getUnitForQty(unit, amount) {
+      return Units.getUnitForQty(unit, amount);
+    },
     async saveRecipe() {
-      // recipeApi.updateRecipe()
+      await recipeApi.updateRecipe(this.recipe);
     },
     removeComponent(component) {
       let index = this.recipe.components.indexOf(component);
