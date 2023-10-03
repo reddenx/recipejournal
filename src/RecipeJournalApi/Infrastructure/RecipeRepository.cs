@@ -129,7 +129,7 @@ namespace RecipeJournalApi.Controllers
                 s.ComponentId,
                 s.Title,
                 s.Body
-            from recipe_step
+            from recipe_step s
             where s.RecipeId = @Id";
             var sqlIngredients = @"
             select
