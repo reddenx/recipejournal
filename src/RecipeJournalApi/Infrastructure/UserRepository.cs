@@ -76,7 +76,7 @@ namespace RecipeJournalApi.Controllers
             select 
                 a.Id,
                 a.Username,
-                a.PermissionRole
+                a.PermissionsRole
             from account a
             where a.Username = @Username";
 
