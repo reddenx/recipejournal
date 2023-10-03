@@ -181,9 +181,9 @@ button.slider-button {
     line-height: 1;
     margin-bottom: 15px;
 }
-.section ~ .section {
-    /* padding-bottom: 10px; */
-}
+/* .section ~ .section {
+    padding-bottom: 10px;
+} */
 .section + .section {
     border-top: 2px solid #f0f0f0;
     padding-top: 15px;

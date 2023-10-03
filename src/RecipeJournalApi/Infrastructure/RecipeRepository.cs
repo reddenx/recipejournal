@@ -15,7 +15,7 @@ namespace RecipeJournalApi.Controllers
     public interface IRecipeRepository
     {
         Recipe GetRecipe(Guid id);
-        RecipeListItem[] GetRecipesForUser(Guid userId);
+        RecipeListItem[] GetRecipesForUser(Guid? userId);
         Recipe UpdateRecipe(RecipeDto update);
     }
     public class RecipeListItem
@@ -78,7 +78,7 @@ namespace RecipeJournalApi.Controllers
             return _recipeDB.FirstOrDefault(r => r.Id == id);
         }
 
-        public RecipeListItem[] GetRecipesForUser(Guid userId)
+        public RecipeListItem[] GetRecipesForUser(Guid? userId)
         {
             return _recipeDB.Where(r => r.AuthorId == userId).Select(r => new RecipeListItem
             {

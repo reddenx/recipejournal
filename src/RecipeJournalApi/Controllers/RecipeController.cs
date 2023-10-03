@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace RecipeJournalApi.Controllers
 {
     [ApiController]
-    [Route("api/recipes")]
+    [Route("api/v1/recipes")]
     public class RecipeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -22,7 +22,7 @@ namespace RecipeJournalApi.Controllers
         public ActionResult<RecipeListItemDto[]> GetRecipeList()
         {
             var user = UserInfo.FromClaimsPrincipal(this.User);
-            var recipes = _recipeRepo.GetRecipesForUser(user.Id);
+            var recipes = _recipeRepo.GetRecipesForUser(user?.Id);
             return recipes.Select(r => new RecipeListItemDto
             {
                 Id = r.Id,
@@ -43,6 +43,8 @@ namespace RecipeJournalApi.Controllers
         public ActionResult<RecipeDto> GetRecipe([FromRoute] Guid id)
         {
             var recipe = _recipeRepo.GetRecipe(id);
+            if (recipe == null)
+                return StatusCode(404);
             return RecipeDto.FromDataType(recipe);
         }
         public class RecipeDto
@@ -52,6 +54,7 @@ namespace RecipeJournalApi.Controllers
                 return new RecipeDto
                 {
                     Id = recipe.Id,
+                    Title = recipe.Title,
                     Author = recipe.Author,
                     Description = recipe.Description,
                     DurationMinutes = recipe.DurationMinutes,

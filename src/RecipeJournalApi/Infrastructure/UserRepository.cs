@@ -27,17 +27,24 @@ namespace RecipeJournalApi.Controllers
 
         public static UserInfo FromClaimsPrincipal(ClaimsPrincipal user)
         {
-            return new UserInfo
+            try
             {
-                Id = Guid.Parse(user.Claims.FirstOrDefault(c => c.Type == "userid")?.Value),
-                AccessLevel = user.Claims.FirstOrDefault(c => c.Type == "access-level")?.Value,
-                Username = user.Claims.FirstOrDefault(c => c.Type == "username")?.Value
-            };
+                return new UserInfo
+                {
+                    Id = Guid.Parse(user.Claims.FirstOrDefault(c => c.Type == "userid")?.Value),
+                    AccessLevel = user.Claims.FirstOrDefault(c => c.Type == "access-level")?.Value,
+                    Username = user.Claims.FirstOrDefault(c => c.Type == "username")?.Value
+                };
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public Claim[] ToClaims()
         {
-            return new [] 
+            return new[]
             {
                 new Claim("userid", this.Id.ToString("N")),
                 new Claim("username", this.Username),
@@ -64,6 +71,7 @@ namespace RecipeJournalApi.Controllers
                 {
                     Username = "sean",
                     Id = MOCK_USER,
+                    AccessLevel = "admin",
                 };
             }
             return null;

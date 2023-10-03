@@ -1,4 +1,5 @@
 using System;
+using System.Data.Common;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -25,7 +26,17 @@ namespace RecipeJournalApi.Controllers
         [HttpGet("")]
         public IActionResult GetLoggedInUserInfo()
         {
-            throw new NotImplementedException();
+            var user = UserInfo.FromClaimsPrincipal(this.User);
+            if (user != null)
+            {
+                return Json(new
+                {
+                    UserId = user.Id.ToString("N"),
+                    Username = user.Username,
+                    AccessLevel = user.AccessLevel,
+                });
+            }
+            return StatusCode(404);
         }
 
         public class CreateUserDto
