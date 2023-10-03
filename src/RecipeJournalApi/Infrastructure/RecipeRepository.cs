@@ -204,19 +204,19 @@ namespace RecipeJournalApi.Controllers
                     delete from recipe_component
                     where RecipeId = @Id";
 
-                    conn.Execute(sqlDelComponents, new { Id = current.Id });
+                    conn.Execute(sqlDelComponents, new { Id = current.Id.ToString("N") });
 
                     const string sqlDelSteps = @"
                     delete from recipe_step
                     where RecipeId = @Id";
 
-                    conn.Execute(sqlDelSteps, new { Id = current.Id });
+                    conn.Execute(sqlDelSteps, new { Id = current.Id.ToString("N") });
 
                     const string sqlDelIngredients = @"
                     delete from step_ingredient
                     where RecipeId = @Id";
 
-                    conn.Execute(sqlDelIngredients, new { Id = current.Id });
+                    conn.Execute(sqlDelIngredients, new { Id = current.Id.ToString("N") });
 
                     //TODO write version select so multiple versions can exist in the db
                     const string sqlUpdateRecipe = @"
