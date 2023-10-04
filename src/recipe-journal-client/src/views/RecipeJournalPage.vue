@@ -118,7 +118,7 @@ export default {
         addNewButtonPressed() {
             let newModel = new EntryListItemViewmodel(new JournalEntryListDto(null, null, 1, 0.5, null, true, false));
             newModel.loaded = true;
-            newModel.entry = new JournalEntryDto(null, null, 1, 0.5, null, '', '', '', '', true, false);
+            newModel.entry = new JournalEntryDto(null, this.recipeId, 1, 0.5, null, '', '', '', '', true, false);
             newModel.expanded = true;
             newModel.editing = true;
             
@@ -143,14 +143,14 @@ class EntryListItemViewmodel {
     async loadEntry() {
         if (this.loaded) return;
         this.busy = true;
-        this.entry = await journalApi.getJournalEntry(this.listItem.id);
+        this.entry = await journalApi.getJournalEntry(this.listItem.recipeId, this.listItem.id);
         this.loaded = true;
         this.busy = false;
     }
 
     async save() {
         this.busy = true;
-        let updated = await journalApi.updateJournalEntry(this.entry);
+        let updated = await journalApi.updateJournalEntry(this.entry.recipeId, this.entry);
         this.entry = updated;
         this.listItem = new JournalEntryListDto(
             updated.id,
@@ -161,7 +161,7 @@ class EntryListItemViewmodel {
             updated.stickyNext,
             updated.nextDismissed
         );
-        this.entry = await journalApi.getJournalEntry(this.listItem.id);
+        this.entry = await journalApi.getJournalEntry(this.listItem.recipeId, this.listItem.id);
         this.busy = false;
     }
 }

@@ -8,21 +8,87 @@ export default class JournalApi {
      * @returns {JournalEntryListDto[]}
      */
     async getJournalForRecipe(recipeId) {
-        return mockEntries.map(e => new JournalEntryListDto(e.id, e.recipeId, e.recipeScale, e.successRating, e.date, e.stickyNext, e.nextDismissed));
+        try {
+            let result = await axios.get(`/api/v1/recipes/${recipeId}/journal`);
+            if(result.data) {
+                return result.data.map(d => new JournalEntryListDto(
+                    d.id,
+                    d.recipeId,
+                    d.recipeScale,
+                    d.successRating,
+                    d.date,
+                    d.stickyNext,
+                    d.nextDismissed
+                ));
+            }
+        }
+        catch {
+            //
+        }
+        return [];
+        
+        
+        // return mockEntries.map(e => new JournalEntryListDto(e.id, e.recipeId, e.recipeScale, e.successRating, e.date, e.stickyNext, e.nextDismissed));
     }
     /**
      * @param {String} entryId 
      * @returns {JournalEntryDto}
      */
-    async getJournalEntry(entryId) {
-        return mockEntries.find(e => e.id == entryId);
+    async getJournalEntry(recipeId, entryId) {
+        try {
+            let result = await axios.get(`/api/v1/recipes/${recipeId}/journal/${entryId}`);
+            if(result.data) {
+                return new JournalEntryDto(
+                    result.data.id,
+                    result.data.recipeId,
+                    result.data.recipeScale,
+                    result.data.successRating,
+                    result.data.date,
+                    result.data.attemptNotes,
+                    result.data.resultNotes,
+                    result.data.generalNotes,
+                    result.data.nextNotes,
+                    result.data.stickyNext,
+                    result.data.nextDismissed
+                );
+            }
+        }
+        catch {
+            //
+        }
+        return null;
+        
+        // return mockEntries.find(e => e.id == entryId);
     }
     /**
      * @param {JournalEntryDto} updateEntryDto 
      * @returns {JournalEntryDto}
      */
-    async updateJournalEntry(entryDto) {
-        return entryDto;
+    async updateJournalEntry(recipeId, entryDto) {
+        try {
+            let result =await axios.put(`/api/v1/recipes/${recipeId}/journal`, entryDto);
+            if(result.data) {
+                return new JournalEntryDto(
+                    result.data.id,
+                    result.data.recipeId,
+                    result.data.recipeScale,
+                    result.data.successRating,
+                    result.data.date,
+                    result.data.attemptNotes,
+                    result.data.resultNotes,
+                    result.data.generalNotes,
+                    result.data.nextNotes,
+                    result.data.stickyNext,
+                    result.data.nextDismissed
+                );
+            }
+        }
+        catch {
+            //
+        }
+
+        return null;
+        // return entryDto;
     }
 }
 
@@ -46,7 +112,7 @@ export class JournalEntryDto {
         this.recipeId = recipeId;
         this.recipeScale = recipeScale;
         this.successRating = successRating;
-        this.date = date;
+        this.date = new Date(date);
         this.attemptNotes = attemptNotes;
         this.resultNotes = resultNotes;
         this.generalNotes = generalNotes;
@@ -71,9 +137,9 @@ export class JournalEntryListDto {
         this.recipeId = recipeId;
         this.recipeScale = recipeScale;
         this.successRating = successRating;
-        this.date = date;
-        this.nextDismissed = nextDismissed;
+        this.date = new Date(date);
         this.stickyNext = stickyNext;
+        this.nextDismissed = nextDismissed;
     }
 }
 
