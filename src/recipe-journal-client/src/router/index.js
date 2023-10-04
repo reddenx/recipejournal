@@ -10,6 +10,9 @@ import CookingPage from '../views/CookingPage';
 import CookingListPage from "../views/CookingListPage";
 import RecipeCmsPage from "../views/RecipeCmsPage";
 import GroceriesPage from "../views/GroceriesPage.vue";
+import JournalPage from "../views/JournalPage.vue";
+import GoalsPage from "../views/GoalsPage";
+import AccountPage from "../views/AccountPage";
 
 Vue.use(VueRouter)
 
@@ -36,7 +39,20 @@ const routes = [
   {
     path:'/groceries',
     component: GroceriesPage
+  },
+  {
+    path: '/journal',
+    component: JournalPage
+  },
+  {
+    path: '/goals',
+    component: GoalsPage
+  },
+  {
+    path: '/account',
+    component: AccountPage
   }
+
   // {
   //   path: '/recipes',
   //   name: 'recipe list',
