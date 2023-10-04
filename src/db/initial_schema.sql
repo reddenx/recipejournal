@@ -68,7 +68,7 @@ create table step_ingredient
     ,IngredientId varchar(32) not null
     ,`Number` int not null
     ,Unit varchar(20) not null
-    ,Amount int not null
+    ,Amount float not null
     ,`Description` text not null
 );
 
@@ -93,3 +93,17 @@ create table ingredient_ingredient_category
 );
 
 insert into `account` (id, username, permissionsrole, datecreated) values ('00000000000000000000000000000001', 'sean', 'admin', curdate());
+
+create table shopping_recipe
+(
+    Id varchar(32) not null,
+    RecipeId varchar(32) not null,
+    UserId varchar(32) not null,
+    Scale float not null
+);
+
+create table shopping_gathered
+(
+    UserId varchar(32) not null,
+    IngredientId varchar(32) not null
+)
