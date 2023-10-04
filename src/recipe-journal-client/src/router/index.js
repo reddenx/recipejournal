@@ -9,6 +9,7 @@ import HomePage from '../views/HomePage.vue'
 import CookingPage from '../views/CookingPage';
 import CookingListPage from "../views/CookingListPage";
 import RecipeCmsPage from "../views/RecipeCmsPage";
+import GroceriesPage from "../views/GroceriesPage.vue";
 
 Vue.use(VueRouter)
 
@@ -32,6 +33,10 @@ const routes = [
     name: 'home',
     component: HomePage
   },
+  {
+    path:'/groceries',
+    component: GroceriesPage
+  }
   // {
   //   path: '/recipes',
   //   name: 'recipe list',
