@@ -89,17 +89,17 @@ namespace RecipeJournalApi.Infrastructure
                 {
                     GatheredIngredients = gathered.Select(i => new GatheredIngredient
                     {
-                        Id = i.IngredientId,
+                        Id = Guid.Parse(i.IngredientId),
                         Name = i.Name,
                     }).ToArray(),
                     Recipes = recipes.GroupBy(r => r.RecipeId).Select(r => new ShoppingRecipe
                     {
-                        Id = r.Key,
+                        Id = Guid.Parse(r.Key),
                         Scale = r.First().Scale,
                         Title = r.First().Title,
                         Ingredients = r.Select(i => new ShoppingRecipeIngredient
                         {
-                            Id = i.IngredientId,
+                            Id = Guid.Parse(i.IngredientId),
                             Amount = i.Amount,
                             Name = i.Name,
                             Unit = i.Unit
@@ -154,10 +154,10 @@ namespace RecipeJournalApi.Infrastructure
 
         public class ShoppingRecipeData
         {
-            public Guid RecipeId { get; set; }
-            public Guid UserId { get; set; }
+            public string RecipeId { get; set; }
+            public string UserId { get; set; }
             public float Scale { get; set; }
-            public Guid IngredientId { get; set; }
+            public string IngredientId { get; set; }
             public float Amount { get; set; }
             public string Unit { get; set; }
             public string Title { get; set; }
@@ -165,8 +165,8 @@ namespace RecipeJournalApi.Infrastructure
         }
         public class ShoppingGatheredData
         {
-            public Guid UserId { get; set; }
-            public Guid IngredientId { get; set; }
+            public string UserId { get; set; }
+            public string IngredientId { get; set; }
             public string Name { get; set; }
         }
 
