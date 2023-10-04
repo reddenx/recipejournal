@@ -48,9 +48,9 @@ export default {
     methods: {
         async shopRecipeButton(recipe) {
             let list = await shoppingApi.getShoppingList();
-            let scales = list.recipes.map((r) => {
-                r.id, r.scale;
-            });
+            let scales = list.recipes.map((r) => ({
+                id: r.id, scale: r.scale
+            }));
             await shoppingApi.updateShoppingList([
                 { id: recipe.id, scale: 1 },
                 ...scales,
