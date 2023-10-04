@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 namespace RecipeJournalApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("/")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -14,8 +14,8 @@ namespace RecipeJournalApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet("/")]
-        public IActionResult Index() 
+        [HttpGet("/{page?}/{id?}")]
+        public IActionResult Index(string page, string id) 
         {
             return File("index.html", "text/html");
         }

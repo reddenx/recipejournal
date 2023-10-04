@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RecipeJournalApi.Controllers;
+using RecipeJournalApi.Infrastructure;
 using System;
 using System.Threading.Tasks;
 
@@ -33,7 +34,9 @@ namespace RecipeJournalApi
 #if DEBUG
             builder.Services.AddSingleton<IRecipeRepository, MockRecipeRepository>();
             builder.Services.AddSingleton<IUserRepository, MockUserRepository>();
+            builder.Services.AddSingleton<IShoppingRepository, MockShoppingRepository>();
 #else
+            builder.Services.AddSingleton<IShoppingRepository, ShoppingRepository>();
             builder.Services.AddSingleton<IRecipeRepository, RecipeRepository>();
             builder.Services.AddSingleton<IUserRepository, UserRepository>();
 #endif
