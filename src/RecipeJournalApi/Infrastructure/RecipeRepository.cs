@@ -448,7 +448,7 @@ namespace RecipeJournalApi.Infrastructure
 
         public RecipeListItem[] GetRecipesForUser(Guid? userId)
         {
-            return _recipeDB.Where(r => r.AuthorId == userId).Select(r => new RecipeListItem
+            return _recipeDB.Where(r => r.AuthorId == userId || r.IsPublic).Select(r => new RecipeListItem
             {
                 Id = r.Id,
                 Title = r.Title

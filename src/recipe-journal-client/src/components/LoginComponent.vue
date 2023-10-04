@@ -25,8 +25,9 @@ export default {
     user: null,
   }),
   async mounted() {
-    this.user = await userApi.getLoggedInUser();
     this.busy = true;
+    this.user = await userApi.getLoggedInUser();
+    this.busy = false;
   },
   methods: {
     async login() {

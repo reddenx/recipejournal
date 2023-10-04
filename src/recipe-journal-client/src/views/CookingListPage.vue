@@ -8,7 +8,7 @@
             >
             -- <router-link :to="'/cms/' + recipe.id">edit</router-link>
             <button
-                v-if="!shoppingRecipeIds.includes(recipe.id)"
+                v-if="isLoggedIn && !shoppingRecipeIds.includes(recipe.id)"
                 type="button"
                 @click="shopRecipeButton(recipe)"
             >
@@ -22,19 +22,28 @@
 <script>
 import RecipeApi from "../scripts/recipeApi";
 import ShoppingApi from "../scripts/shoppingApi";
+import UserApi from '../scripts/userApi';
 
 const recipeApi = new RecipeApi();
 const shoppingApi = new ShoppingApi();
+const userApi = new UserApi(); //should probably come up with a user service thingy
 
 export default {
     data: () => ({
         recipes: [],
         shoppingRecipeIds: [],
+        isLoggedIn: false,
     }),
     async mounted() {
         this.recipes = await recipeApi.getRecipeList();
-        let shoppingList = await shoppingApi.getShoppingList();
-        this.shoppingRecipeIds = shoppingList.recipes.map((r) => r.id);
+        let user = await userApi.getLoggedInUser();
+        if(user) {
+            let shoppingList = await shoppingApi.getShoppingList();
+            this.shoppingRecipeIds = shoppingList.recipes.map((r) => r.id);
+            this.isLoggedIn = true;
+        } else {
+            this.isLoggedIn = false;
+        }
     },
     methods: {
         async shopRecipeButton(recipe) {
