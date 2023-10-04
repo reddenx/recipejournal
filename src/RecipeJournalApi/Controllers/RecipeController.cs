@@ -124,8 +124,8 @@ namespace RecipeJournalApi.Controllers
             }
         }
 
-        [HttpPut("")]
         [Authorize]
+        [HttpPut("")]
         public ActionResult<RecipeDto> UpdateRecipe(RecipeDto recipeDto)
         {
             var user = UserInfo.FromClaimsPrincipal(this.User);
@@ -133,5 +133,24 @@ namespace RecipeJournalApi.Controllers
             var dto = RecipeDto.FromDataType(updated);
             return dto;
         }
+
+
+        [Authorize]
+        [HttpGet("{recipeId}/journal")]
+        public ActionResult<RecipeJournalListEntryDto> GetJournalForRecipe(Guid recipeId)
+            => throw new NotImplementedException();
+        public class RecipeJournalListEntryDto { }
+
+        [Authorize]
+        [HttpGet("{recipeId}/journal/{entryId}")]
+        public ActionResult<RecipeJournalEntryDto> GetJournalEntry(Guid recipeId, Guid entryId)
+            => throw new NotImplementedException();
+        public class RecipeJournalEntryDto { }
+
+        [Authorize]
+        [HttpPut("{recipeId}/journal")]
+        public ActionResult<RecipeJournalEntryDto> UpdateJournalEntry(Guid recipeId, UpdateRecipeJournalEntryDto entry)
+            => throw new NotImplementedException();
+        public class UpdateRecipeJournalEntryDto { }
     }
 }
