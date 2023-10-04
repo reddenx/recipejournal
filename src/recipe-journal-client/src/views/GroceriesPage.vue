@@ -48,12 +48,12 @@ export default {
     data: () => ({
         recipes: [],
         ingredients: [],
-        gathered: [],
+        gatheredIds: [],
     }),
     async mounted() {
         let shoppingList = await shoppingApi.getShoppingList();
         this.recipes = shoppingList.recipes;
-        this.gathered = shoppingList.gathered;
+        this.gatheredIds = shoppingList.gatheredIds;
         this.condenseIngredients();
     },
     methods: {
@@ -75,7 +75,7 @@ export default {
                     hash[i.ingredient.name] = new ShoppingIngredient(
                         i.ingredient.id,
                         i.ingredient.name,
-                        this.gathered.includes(i.ingredient.name)
+                        this.gatheredIds.includes(i.ingredient.id)
                     );
 
                 hash[i.ingredient.name].addIngredient(
@@ -105,7 +105,7 @@ export default {
         async save() {
             await shoppingApi.updateShoppingList(
                 this.recipes.map(r => ({ id: r.id, scale: r.scale })),
-                this.ingredients.filter(i => i.gathered).map(i => i.name),
+                this.ingredients.filter(i => i.gathered).map(i => i.id),
             );
         },
     },

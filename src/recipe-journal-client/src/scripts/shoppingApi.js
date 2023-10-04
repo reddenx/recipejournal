@@ -1,18 +1,35 @@
+import axios from 'axios';
+
 export default class ShoppingApi {
     async getShoppingList() {
-        return _shoppingList;
+        try {
+            let result = await axios.get('api/v1/shopping');
+            if (result.data) {
+                return new ShoppingListDto(result.data.recipes.map(r => new ShoppingRecipe(r.id, r.title, r.scale, r.ingredients.map(i => new ShoppingIngredient(i.id, i.name, i.unit, i.amount)))), result.data.gatheredIds);
+            }
+        } catch {
+            return null;
+        }
     }
-    updateShoppingList(recipeScales, gatheredNames) {
-        console.log(recipeScales, gatheredNames);
+    async updateShoppingList(recipeScales, gatheredIds) {
+        try {
+            let result = await axios.put('api/v1/shopping', {
+                recipeScales,
+                gatheredIds
+            });
+            return result.status == 204;
+        } catch {
+            return false;
+        }
     }
 }
 
 
 //lists recipes in list, ingredients and their shopping status
 export class ShoppingListDto {
-    constructor(recipes, gathered) {
+    constructor(recipes, gatheredIds) {
         this.recipes = recipes;
-        this.gathered = gathered;
+        this.gatheredIds = gatheredIds;
     }
 }
 export class ShoppingRecipe {
@@ -23,7 +40,7 @@ export class ShoppingRecipe {
         this.ingredients = ingredients;
     }
 }
-export class ShoppingIngredients {
+export class ShoppingIngredient {
     constructor(id, name, unit, amount) {
         this.id = id;
         this.name = name;
@@ -69,5 +86,5 @@ var _shoppingList = {
             name: 'apple'
         }]
     }],
-    gathered: ['cereal', 'apple']
+    gatheredIds: ['f98a7whv', 'apple']
 }; 

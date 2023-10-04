@@ -8,41 +8,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Logging;
+using RecipeJournalApi.Infrastructure;
 
 namespace RecipeJournalApi.Controllers
 {
-    public interface IShoppingRepository
-    {
-        ShoppingList GetUserShoppingList(Guid userId);
-        bool UpdateShoppingList(Guid userId, Guid[] recipeIds, Guid[] gatheredIngredientIds);
-    }
-    public class ShoppingList
-    {
-        public ShoppingRecipe[] Recipes { get; set; }
-        public GatheredIngredient[] GatheredIngredients { get; set; }
-    }
-    public class ShoppingRecipe
-    {
-        public Guid Id { get; set; }
-        public string Title { get; set; }
-        public float Scale { get; set; }
-        public ShoppingRecipeIngredient[] Ingredients { get; set; }
-    }
-    public class ShoppingRecipeIngredient
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Unit { get; set; }
-        public float Amount { get; set; }
-    }
-    public class GatheredIngredient
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-    }
+    
 
     [Authorize]
-    [Route("api/shopping")]
+    [Route("api/v1/shopping")]
     public class ShoppingController : Controller
     {
         private readonly IShoppingRepository _shoppingRepo;
@@ -73,13 +46,13 @@ namespace RecipeJournalApi.Controllers
                         Unit = i.Unit,
                     }).ToArray(),
                 }).ToArray(),
-                Gathered = list.GatheredIngredients.Select(i => i.Name).ToArray()
+                GatheredIds = list.GatheredIngredients.Select(i => i.Id).ToArray()
             };
         }
         public class ShoppingListDto
         {
             public ShoppingListRecipeDto[] Recipes { get; set; }
-            public string[] Gathered { get; set; }
+            public Guid[] GatheredIds { get; set; }
         }
         public class ShoppingListRecipeDto
         {
@@ -100,13 +73,22 @@ namespace RecipeJournalApi.Controllers
         public IStatusCodeActionResult UpdateShoppingList([FromBody] UpdateShoppingListDto dto)
         {
             var user = UserInfo.FromClaimsPrincipal(this.User);
-            var success = _shoppingRepo.UpdateShoppingList(user.Id, dto.RecipeIds, dto.GatheredIngredientIds);
+            var success = _shoppingRepo.UpdateShoppingList(user.Id, dto.RecipeScales.Select(r => new ShoppingRecipeScale
+            {
+                Id = r.Id,
+                Scale = r.Scale
+            }).ToArray(), dto.GatheredIds);
             return StatusCode(success ? 204 : 400);
         }
         public class UpdateShoppingListDto
         {
-            public Guid[] RecipeIds { get; set; }
-            public Guid[] GatheredIngredientIds { get; set; }
+            public ShoppingRecipeScale[] RecipeScales { get; set; }
+            public Guid[] GatheredIds { get; set; }
+        }
+        public class ShoppingRecipeScaleDto
+        {
+            public Guid Id { get; set; }
+            public float Scale { get; set; }
         }
     }
 }
