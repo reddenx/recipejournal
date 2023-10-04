@@ -69,7 +69,7 @@ namespace RecipeJournalApi.Infrastructure
                 inner join recipe r on r.Id = st.RecipeId
                 inner join step_ingredient si on si.RecipeId = r.RecipeId
                 inner join ingredient i on i.Id = si.IngredientId
-            where r.UserId = @Id";
+            where sr.UserId = @Id";
 
             var sqlGathered = @"
             select
@@ -78,7 +78,7 @@ namespace RecipeJournalApi.Infrastructure
                 i.Name
             from shopping_gathered g
                 inner join ingredient i on i.Id = g.IngredientId
-            where i.UserId = @Id";
+            where g.UserId = @Id";
 
             using (var conn = new MySqlConnection(_connectionString))
             {
