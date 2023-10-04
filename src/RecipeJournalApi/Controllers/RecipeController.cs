@@ -62,19 +62,22 @@ namespace RecipeJournalApi.Controllers
                     IsDraft = recipe.IsDraft,
                     IsPublic = recipe.IsPublic,
                     Servings = recipe.Servings,
-                    Components = recipe.Components.Select(c => new RecipeDto.RecipeComponentDto
+                    Components = recipe.Components.OrderBy(c => c.Number).Select(c => new RecipeDto.RecipeComponentDto
                     {
                         Id = c.Id,
+                        Number = c.Number,
                         Description = c.Description,
                         Title = c.Title,
-                        Steps = c.Steps.Select(s => new RecipeDto.RecipeStepDto
+                        Steps = c.Steps.OrderBy(s => s.Number).Select(s => new RecipeDto.RecipeStepDto
                         {
                             Id = s.Id,
+                            Number = s.Number,
                             Title = s.Title,
                             Body = s.Body,
-                            Ingredients = s.Ingredients.Select(i => new RecipeDto.RecipeIngredientDto
+                            Ingredients = s.Ingredients.OrderBy(i => i.Number).Select(i => new RecipeDto.RecipeIngredientDto
                             {
                                 Id = i.Id,
+                                Number = i.Number,
                                 Name = i.Name,
                                 Amount = i.Amount,
                                 Unit = i.Unit
@@ -97,6 +100,7 @@ namespace RecipeJournalApi.Controllers
             public class RecipeComponentDto
             {
                 public Guid? Id { get; set; }
+                public int Number { get; set; }
                 public string Title { get; set; }
                 public string Description { get; set; }
                 public RecipeStepDto[] Steps { get; set; }
@@ -104,6 +108,7 @@ namespace RecipeJournalApi.Controllers
             public class RecipeStepDto
             {
                 public Guid? Id { get; set; }
+                public int Number { get; set; }
                 public string Title { get; set; }
                 public string Body { get; set; }
                 public RecipeIngredientDto[] Ingredients { get; set; }
@@ -111,6 +116,7 @@ namespace RecipeJournalApi.Controllers
             public class RecipeIngredientDto
             {
                 public Guid? Id { get; set; }
+                public int Number { get; set; }
                 public string Name { get; set; }
                 public string Unit { get; set; }
                 public float Amount { get; set; }
