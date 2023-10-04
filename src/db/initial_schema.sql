@@ -96,7 +96,6 @@ insert into `account` (id, username, permissionsrole, datecreated) values ('0000
 
 create table shopping_recipe
 (
-    Id varchar(32) not null,
     RecipeId varchar(32) not null,
     UserId varchar(32) not null,
     Scale float not null
