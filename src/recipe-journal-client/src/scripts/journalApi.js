@@ -21,7 +21,9 @@ export default class JournalApi {
      * @param {JournalEntryDto} updateEntryDto 
      * @returns {JournalEntryDto}
      */
-    async updateJournalEntry(entryDto) { }
+    async updateJournalEntry(entryDto) {
+        return entryDto;
+    }
 }
 
 export class JournalEntryDto {
