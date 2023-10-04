@@ -66,7 +66,7 @@ namespace RecipeJournalApi.Infrastructure
                 r.Title,
                 i.Name
             from shopping_recipe sr
-                inner join recipe r on r.Id = st.RecipeId
+                inner join recipe r on r.Id = sr.RecipeId
                 inner join step_ingredient si on si.RecipeId = r.RecipeId
                 inner join ingredient i on i.Id = si.IngredientId
             where sr.UserId = @Id";
