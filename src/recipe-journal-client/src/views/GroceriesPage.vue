@@ -1,15 +1,21 @@
 <template>
     <div>
         <h1>Shopping List</h1>
-
-        <div v-for="recipe in recipes" :key="recipe.id">
-            {{ recipe.title }} x{{ recipe.scale }}
-        </div>
+        Recipes:
+        <ul>
+            <li v-for="recipe in recipes" :key="recipe.id">
+                {{ recipe.title }} x{{ recipe.scale }}
+                <button type="button" @click="removeRecipe(recipe)">X</button>
+            </li>
+        </ul>
 
         <hr />
-
-        <div @click="clickedIngredient(ingredient)" v-for="ingredient in ingredients.filter(i => !i.gathered)" :key="ingredient.name">
-            {{ ingredient.gathered ? 'Y' : 'N' }}
+        <h2>TODO</h2>
+        <div
+            @click="clickedIngredient(ingredient)"
+            v-for="ingredient in ingredients.filter((i) => !i.gathered)"
+            :key="ingredient.name"
+        >
             {{ ingredient.name
             }}<span v-for="amount in ingredient.amounts" :key="amount.unit"
                 >, {{ amount.amount
@@ -17,8 +23,12 @@
             >
         </div>
         <hr />
-        <div @click="clickedIngredient(ingredient)" v-for="ingredient in ingredients.filter(i => i.gathered)" :key="ingredient.name">
-            {{ ingredient.gathered ? 'Y' : 'N' }}
+        <h2>Gathered</h2>
+        <div
+            @click="clickedIngredient(ingredient)"
+            v-for="ingredient in ingredients.filter((i) => i.gathered)"
+            :key="ingredient.name"
+        >
             {{ ingredient.name
             }}<span v-for="amount in ingredient.amounts" :key="amount.unit"
                 >, {{ amount.amount
@@ -29,7 +39,7 @@
 </template>
 
 <script>
-import ShoppingApi from "../scripts/shoppingApi.js";
+import ShoppingApi, { ShoppingListDto } from "../scripts/shoppingApi.js";
 import Units from "../scripts/units.js";
 
 const shoppingApi = new ShoppingApi();
@@ -50,17 +60,28 @@ export default {
         condenseIngredients() {
             //transform recipe ingredient lists into flat ingredient list with amounts broken down by unit and scale accounted for
             let ingredients = [];
-            this.recipes.forEach((r) => ingredients.push(...r.ingredients.map(i => ({ ingredient: i, scale: r.scale }))));
+            this.recipes.forEach((r) =>
+                ingredients.push(
+                    ...r.ingredients.map((i) => ({
+                        ingredient: i,
+                        scale: r.scale,
+                    }))
+                )
+            );
 
             let hash = {};
             ingredients.forEach((i) => {
                 if (!hash[i.ingredient.name])
                     hash[i.ingredient.name] = new ShoppingIngredient(
+                        i.ingredient.id,
                         i.ingredient.name,
                         this.gathered.includes(i.ingredient.name)
                     );
 
-                hash[i.ingredient.name].addIngredient(i.ingredient.unit, i.ingredient.amount * i.scale);
+                hash[i.ingredient.name].addIngredient(
+                    i.ingredient.unit,
+                    i.ingredient.amount * i.scale
+                );
             });
             this.ingredients = [];
             this.ingredients.push(...Object.values(hash));
@@ -71,12 +92,30 @@ export default {
         },
         clickedIngredient(ingredient) {
             ingredient.gathered = !ingredient.gathered;
-        }
+
+            this.save();
+        },
+        removeRecipe(recipe) {
+            let index = this.recipes.indexOf(recipe);
+            this.recipes.splice(index, 1);
+            this.condenseIngredients();
+
+            this.save();
+        },
+        async save() {
+            await shoppingApi.updateShoppingList(
+                new ShoppingListDto(
+                    this.recipes.map((r) => r.id),
+                    this.ingredients.filter((i) => i.gathered).map((i) => i.id)
+                )
+            );
+        },
     },
 };
 
 class ShoppingIngredient {
-    constructor(name, gathered) {
+    constructor(id, name, gathered) {
+        this.id = id;
         this.name = name;
         this.gathered = gathered;
         this.amounts = [];
