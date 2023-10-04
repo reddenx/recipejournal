@@ -14,6 +14,8 @@
         <div class="row">
             <div class="col">
                 <router-link :to="'cook'">Recipe list here!</router-link>
+                <br />
+                <router-link :to="'groceries'">Groceries list here!</router-link>
             </div>
         </div>
     </div>

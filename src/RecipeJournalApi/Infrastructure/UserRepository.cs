@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 
-namespace RecipeJournalApi.Controllers
+namespace RecipeJournalApi.Infrastructure
 {
     public interface IUserRepository
     {

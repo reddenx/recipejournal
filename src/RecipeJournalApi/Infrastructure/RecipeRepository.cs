@@ -1,19 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using Dapper;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
-using Org.BouncyCastle.Asn1.Misc;
 using static RecipeJournalApi.Controllers.RecipeController;
 
-namespace RecipeJournalApi.Controllers
+namespace RecipeJournalApi.Infrastructure
 {
     public interface IRecipeRepository
     {
@@ -442,7 +434,7 @@ namespace RecipeJournalApi.Controllers
             public int Number { get; set; }
             public string Name { get; set; }
             public string Unit { get; set; }
-            public int Amount { get; set; }
+            public float Amount { get; set; }
             public string Description { get; set; }
         }
     }
@@ -456,7 +448,7 @@ namespace RecipeJournalApi.Controllers
 
         public RecipeListItem[] GetRecipesForUser(Guid? userId)
         {
-            return _recipeDB.Where(r => r.AuthorId == userId).Select(r => new RecipeListItem
+            return _recipeDB.Where(r => r.AuthorId == userId || r.IsPublic).Select(r => new RecipeListItem
             {
                 Id = r.Id,
                 Title = r.Title
