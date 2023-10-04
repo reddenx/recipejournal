@@ -1,12 +1,13 @@
 <template>
   <div>
     <div v-if="!user">
-      <input type="text" v-model="username" /><button type="button" @click="login">
+      <input type="text" v-model="username" :disabled="busy" /><button type="button" @click="login" :disabled="busy">
         login
       </button>
     </div>
     <div v-if="user">
       {{ user.username }}
+      <button type="button" @click="logout" :disabled="busy" >logout</button>
     </div>
   </div>
 </template>
@@ -36,6 +37,13 @@ export default {
       }
       this.busy = false;
     },
+    async logout() {
+      this.busy = true
+      let success = await userApi.logout();
+      this.user = null;
+      this.username = "";
+      this.busy = false;
+    }
   },
 };
 </script>
