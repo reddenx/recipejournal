@@ -63,7 +63,7 @@ namespace RecipeJournalApi.Infrastructure
                 si.IngredientId,
                 si.Amount,
                 si.Unit,
-                r.Title
+                r.Title,
                 i.Name
             from shopping_recipe sr
                 inner join recipe r on r.Id = st.RecipeId
