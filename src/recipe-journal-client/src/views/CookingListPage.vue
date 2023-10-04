@@ -6,7 +6,7 @@
                 >{{ recipe.title }} - {{ recipe.durationMinutes }}m -
                 {{ recipe.servings }}</router-link
             >
-            -- <router-link :to="'/cms/' + recipe.id">edit</router-link>
+            -- <router-link v-if="isLoggedIn" :to="'/cms/' + recipe.id">edit</router-link>
             <button
                 v-if="isLoggedIn && !shoppingRecipeIds.includes(recipe.id)"
                 type="button"
@@ -15,7 +15,7 @@
                 +SHOP
             </button>
         </div>
-        <router-link :to="'/cms/'">NEW</router-link>
+        <router-link v-if="isLoggedIn"  :to="'/cms/'">NEW</router-link>
     </div>
 </template>
 
@@ -48,9 +48,9 @@ export default {
     methods: {
         async shopRecipeButton(recipe) {
             let list = await shoppingApi.getShoppingList();
-            let scales = list.recipes.map((r) => {
-                r.id, r.scale;
-            });
+            let scales = list.recipes.map((r) => ({
+                id: r.id, scale: r.scale
+            }));
             await shoppingApi.updateShoppingList([
                 { id: recipe.id, scale: 1 },
                 ...scales,
