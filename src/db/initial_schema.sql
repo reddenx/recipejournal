@@ -8,6 +8,8 @@ grant all privileges on recipe.* to 'recipe_user';
 
 use recipe;
 
+drop table if exists shopping_recipe;
+drop table if exists shopping_gathered;
 drop table if exists ingredient_ingredient_category;
 drop table if exists ingredient_category;
 drop table if exists ingredient;
@@ -105,4 +107,4 @@ create table shopping_gathered
 (
     UserId varchar(32) not null,
     IngredientId varchar(32) not null
-)
+);
