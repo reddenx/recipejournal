@@ -2,11 +2,11 @@
     <div>
         <router-link to="/">
             <img alt="Vue logo" src="../assets/logo.png" class="hero-logo-img" />
-        </router-link>
-        | <router-link to="/cook">Recipes</router-link> |
+        </router-link> | 
+        <router-link to="/cook">Recipes</router-link> |
         <template v-if="isLoggedIn">
-            <router-link to="/journal">Journal</router-link> |
-            <router-link to="/goals">Goals</router-link> |
+            <!-- <router-link to="/journal">Journal</router-link> | -->
+            <!-- <router-link to="/goals">Goals</router-link> | -->
             <router-link to="/groceries">Groceries</router-link> |
         </template>
         <login-component @login="handleLogin" @logout="handleLogout" />

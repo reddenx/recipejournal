@@ -10,7 +10,8 @@
             </button>
         </div>
         <div v-if="user" class="loggedin-container">
-            <router-link to="account">{{ user.username }}</router-link>
+            <!-- <router-link to="account">{{ user.username }}</router-link> -->
+            {{ user.username }}
             <button type="button" @click="logout" :disabled="busy">
                 logout
             </button>
