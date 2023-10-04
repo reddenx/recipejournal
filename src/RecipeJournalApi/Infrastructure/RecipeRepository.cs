@@ -48,6 +48,7 @@ namespace RecipeJournalApi.Controllers
         public class RecipeComponent
         {
             public Guid Id { get; set; }
+            public int Number { get; set; }
             public string Title { get; set; }
             public string Description { get; set; }
 
@@ -57,6 +58,7 @@ namespace RecipeJournalApi.Controllers
         public class RecipeStep
         {
             public Guid Id { get; set; }
+            public int Number { get; set; }
             public string Title { get; set; }
             public string Body { get; set; }
 
@@ -67,6 +69,7 @@ namespace RecipeJournalApi.Controllers
         {
             public Guid Id { get; set; }
             public Guid IngredientId { get; set; }
+            public int Number { get; set; }
             public string Name { get; set; }
             public string Unit { get; set; }
             public string Description { get; set; }
@@ -117,6 +120,7 @@ namespace RecipeJournalApi.Controllers
             var sqlComponent = @"
             select
                 c.Id,
+                c.Number,
                 c.RecipeId,
                 c.Title,
                 c.Description
@@ -125,6 +129,7 @@ namespace RecipeJournalApi.Controllers
             var sqlStep = @"
             select
                 s.Id,
+                s.Number,
                 s.RecipeId,
                 s.ComponentId,
                 s.Title,
@@ -137,6 +142,7 @@ namespace RecipeJournalApi.Controllers
                 s.StepId,
                 s.RecipeId,
                 s.IngredientId,
+                s.Number,
                 i.Name,
                 s.Description,
                 s.Unit,
@@ -269,14 +275,14 @@ namespace RecipeJournalApi.Controllers
 
                 //TODO research tvp insert for mariadb
                 const string sqlInsertStep = @"
-                insert into recipe_step (Id, RecipeId, ComponentId, Title, Body)
-                values (@Id, @RecipeId, @ComponentId, @Title, @Body)";
+                insert into recipe_step (Id, RecipeId, ComponentId, `Number`, Title, Body)
+                values (@Id, @RecipeId, @ComponentId, @Number, @Title, @Body)";
                 const string sqlInsertComponent = @"
-                insert into recipe_component (Id, RecipeId, Title, `Description`)
-                values (@Id, @RecipeId, @Title, @Description)";
+                insert into recipe_component (Id, RecipeId, `Number`, Title, `Description`)
+                values (@Id, @RecipeId, @Number, @Title, @Description)";
                 const string sqlInsertStepIngredient = @"
-                insert into step_ingredient (Id, RecipeId, StepId, IngredientId, Unit, Amount, `Description`)
-                select @Id, @RecipeId, @StepId, i.Id, @Unit, @Amount, @Description
+                insert into step_ingredient (Id, RecipeId, StepId, IngredientId, `Number`, Unit, Amount, `Description`)
+                select @Id, @RecipeId, @StepId, i.Id, @Number, @Unit, @Amount, @Description
                 from ingredient i
                 where i.`Name` = @Name";
                 const string sqlInsertIngredient = @"
@@ -290,6 +296,7 @@ namespace RecipeJournalApi.Controllers
                     {
                         Id = componentId.ToString("N"),
                         RecipeId = recipeId.Value.ToString("N"),
+                        Number = component.Number,
                         Title = component.Title,
                         Description = component.Description
                     });
@@ -302,6 +309,7 @@ namespace RecipeJournalApi.Controllers
                             Id = stepId.ToString("N"),
                             RecipeId = recipeId.Value.ToString("N"),
                             ComponentId = componentId.ToString("N"),
+                            Number = step.Number,
                             Title = step.Title,
                             Body = step.Body,
                         });
@@ -315,6 +323,7 @@ namespace RecipeJournalApi.Controllers
                                 Id = ingredientId.ToString("N"),
                                 RecipeId = recipeId.Value.ToString("N"),
                                 StepId = stepId.ToString("N"),
+                                Number = ingredient.Number,
                                 Unit = ingredient.Unit,
                                 Amount = ingredient.Amount,
                                 Description = "", //TODO this is a missing feature right now
@@ -335,6 +344,7 @@ namespace RecipeJournalApi.Controllers
                                     Id = ingredientId.ToString("N"),
                                     RecipeId = recipeId.Value.ToString("N"),
                                     StepId = stepId.ToString("N"),
+                                    Number = ingredient.Number,
                                     Unit = ingredient.Unit,
                                     Amount = ingredient.Amount,
                                     Description = "", //TODO this is a missing feature right now
@@ -369,15 +379,18 @@ namespace RecipeJournalApi.Controllers
                 {
                     Id = Guid.Parse(c.Id),
                     Title = c.Title,
+                    Number = c.Number,
                     Description = c.Description,
                     Steps = steps.Where(s => s.ComponentId == c.Id).Select(s => new Recipe.RecipeStep
                     {
                         Id = Guid.Parse(s.Id),
+                        Number = s.Number,
                         Title = s.Title,
                         Body = s.Body,
                         Ingredients = ingredients.Where(i => i.StepId == s.Id).Select(i => new Recipe.RecipeIngredient
                         {
                             Id = Guid.Parse(i.Id),
+                            Number = i.Number,
                             Name = i.Name,
                             Amount = i.Amount,
                             Description = i.Description,
@@ -407,6 +420,7 @@ namespace RecipeJournalApi.Controllers
         class RecipeComponentData
         {
             public string Id { get; set; }
+            public int Number { get; set; }
             public string RecipeId { get; set; }
             public string Title { get; set; }
             public string Description { get; set; }
@@ -416,6 +430,7 @@ namespace RecipeJournalApi.Controllers
             public string Id { get; set; }
             public string RecipeId { get; set; }
             public string ComponentId { get; set; }
+            public int Number { get; set; }
             public string Title { get; set; }
             public string Body { get; set; }
         }
@@ -424,6 +439,7 @@ namespace RecipeJournalApi.Controllers
             public string Id { get; set; }
             public string StepId { get; set; }
             public string IngredientId { get; set; }
+            public int Number { get; set; }
             public string Name { get; set; }
             public string Unit { get; set; }
             public int Amount { get; set; }
@@ -470,15 +486,18 @@ namespace RecipeJournalApi.Controllers
                 {
                     Description = c.Description,
                     Id = c.Id ?? Guid.NewGuid(),
+                    Number = c.Number,
                     Title = c.Title,
                     Steps = c.Steps.Select(s => new Recipe.RecipeStep
                     {
                         Body = s.Body,
+                        Number = s.Number,
                         Id = s.Id ?? Guid.NewGuid(),
                         Title = s.Title,
                         Ingredients = s.Ingredients.Select(i => new Recipe.RecipeIngredient
                         {
                             Amount = i.Amount,
+                            Number = i.Number,
                             Description = "this field probably needs to be pushed through the layers",
                             Id = i.Id ?? Guid.NewGuid(),
                             IngredientId = Guid.NewGuid(),
@@ -512,6 +531,7 @@ namespace RecipeJournalApi.Controllers
                     {
                         Id = Guid.NewGuid(),
                         Title = "",
+                        Number = 0,
                         Description = "",
                         Steps = new []
                         {
@@ -519,6 +539,7 @@ namespace RecipeJournalApi.Controllers
                             {
                                 Id = Guid.NewGuid(),
                                 Title = "step 1",
+                                Number = 0,
                                 Body = "mix together eggs, flour, salt, milk.",
                                 Ingredients = new []
                                 {
@@ -526,6 +547,7 @@ namespace RecipeJournalApi.Controllers
                                     {
                                         Id = Guid.NewGuid(),
                                         IngredientId = Guid.NewGuid(),
+                                        Number = 0,
                                         Name = "egg",
                                         Description = "",
                                         Amount = 4,
@@ -535,6 +557,7 @@ namespace RecipeJournalApi.Controllers
                                     {
                                         Id = Guid.NewGuid(),
                                         IngredientId = Guid.NewGuid(),
+                                        Number = 1,
                                         Name = "flour",
                                         Description = "",
                                         Amount = .75f,
@@ -544,6 +567,7 @@ namespace RecipeJournalApi.Controllers
                                     {
                                         Id = Guid.NewGuid(),
                                         IngredientId = Guid.NewGuid(),
+                                        Number = 2,
                                         Name = "salt",
                                         Description = "",
                                         Amount = 1,
@@ -555,6 +579,7 @@ namespace RecipeJournalApi.Controllers
                             {
                                 Id = Guid.NewGuid(),
                                 Title = "step 2",
+                                Number = 1,
                                 Body = "melt butter into pans, place cut apples into pans, concentric circles usually work best. I need some longer content here to test wrapping and display ugh",
                                 Ingredients = new []
                                 {
@@ -562,6 +587,7 @@ namespace RecipeJournalApi.Controllers
                                     {
                                         Id = Guid.NewGuid(),
                                         IngredientId = Guid.NewGuid(),
+                                        Number = 0,
                                         Name = "butter",
                                         Description = "",
                                         Amount = 4,
@@ -571,6 +597,7 @@ namespace RecipeJournalApi.Controllers
                                     {
                                         Id = Guid.NewGuid(),
                                         IngredientId = Guid.NewGuid(),
+                                        Number = 1,
                                         Name = "apple",
                                         Description = "",
                                         Amount = 2,
@@ -582,6 +609,7 @@ namespace RecipeJournalApi.Controllers
                             {
                                 Id = Guid.NewGuid(),
                                 Title = "step 3",
+                                Number = 2,
                                 Body = "mix together sugar and cinnamon",
                                 Ingredients = new []
                                 {
@@ -589,6 +617,7 @@ namespace RecipeJournalApi.Controllers
                                     {
                                         Id = Guid.NewGuid(),
                                         IngredientId = Guid.NewGuid(),
+                                        Number = 0,
                                         Name = "sugar",
                                         Description = "",
                                         Amount = .33f,
@@ -598,6 +627,7 @@ namespace RecipeJournalApi.Controllers
                                     {
                                         Id = Guid.NewGuid(),
                                         IngredientId = Guid.NewGuid(),
+                                        Number = 1,
                                         Name = "cinnamon",
                                         Description = "",
                                         Amount = 3,
@@ -608,6 +638,7 @@ namespace RecipeJournalApi.Controllers
                             new Recipe.RecipeStep
                             {
                                 Id = Guid.NewGuid(),
+                                Number = 3,
                                 Title = "step 4",
                                 Body = "pour mixture over apples",
                                 Ingredients = new Recipe.RecipeIngredient[]{}
@@ -615,6 +646,7 @@ namespace RecipeJournalApi.Controllers
                             new Recipe.RecipeStep
                             {
                                 Id = Guid.NewGuid(),
+                                Number = 4,
                                 Title = "step 5",
                                 Body = "sprinkle surgar over pans, covering them evenly",
                                 Ingredients = new Recipe.RecipeIngredient[]{}

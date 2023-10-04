@@ -45,6 +45,7 @@ create table recipe_component
 (
     Id varchar(32) primary key not null
     ,RecipeId varchar(32) not null
+    ,`Number` int not null
     ,Title varchar(800) null
     ,`Description` text null
 );
@@ -52,6 +53,7 @@ create table recipe_component
 create table recipe_step
 (
     Id varchar(32) primary key not null
+    ,`Number` int not null
     ,RecipeId varchar(32) not null
     ,ComponentId varchar(32) not null
     ,Title varchar(800) null
@@ -64,6 +66,7 @@ create table step_ingredient
     ,RecipeId varchar(32) not null
     ,StepId varchar(32) not null
     ,IngredientId varchar(32) not null
+    ,`Number` int not null
     ,Unit varchar(20) not null
     ,Amount int not null
     ,`Description` text not null

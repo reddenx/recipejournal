@@ -152,6 +152,18 @@ export default {
       return Units.getUnitForQty(unit, amount);
     },
     async saveRecipe() {
+
+      //renumber to match cms UI
+      this.recipe.components.forEach((c, i) => {
+        c.number = i;
+        c.steps.forEach((s, j) => {
+          s.number = j;
+          s.ingredients.forEach((g, k) => {
+            g.number = k;
+          });
+        });
+      });
+      
       await recipeApi.updateRecipe(this.recipe);
     },
     removeComponent(component) {
@@ -159,17 +171,20 @@ export default {
       this.recipe.components.splice(index, 1);
     },
     addComponent() {
-      this.recipe.components.push(new RecipeComponentDto(null, "", "", []));
+      let nextNumber = Math.max(this.recipe.components.map(s => s.number)) + 1;
+      this.recipe.components.push(new RecipeComponentDto(null, nextNumber, "", "", []));
     },
     removeStep(component, step) {
       let index = component.steps.indexOf(step);
       component.steps.splice(index, 1);
     },
     addStep(component) {
-      component.steps.push(new RecipeStepDto(null, "", "", []));
+      let nextNumber = Math.max(component.steps.map(s => s.number)) + 1;
+      component.steps.push(new RecipeStepDto(null, nextNumber, "", "", []));
     },
     addIngredient(step) {
-      step.ingredients.push(new RecipeIngredientDto(null, "", "", 0));
+      let nextNumber = Math.max(step.ingredients.map(s => s.number)) + 1;
+      step.ingredients.push(new RecipeIngredientDto(null, nextNumber, "", "", 0));
     },
     removeIngredient(step, ingredient) {
       let index = step.ingredients.indexOf(ingredient);

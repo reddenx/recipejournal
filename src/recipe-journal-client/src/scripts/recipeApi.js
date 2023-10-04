@@ -20,7 +20,7 @@ export default class RecipeApi {
             if (result.data) {
                 let dto = result.data;
                 return new RecipeDto(dto.id, dto.title, dto.description, dto.author, dto.durationMinutes, dto.servings,
-                    dto.components.map(c => new RecipeComponentDto(c.id, c.title, c.description, c.steps.map(s => new RecipeStepDto(s.id, s.title, s.body, s.ingredients.map(i => new RecipeIngredientDto(i.id, i.name, i.unit, i.amount)))))),
+                    dto.components.map(c => new RecipeComponentDto(c.id, c.number, c.title, c.description, c.steps.map(s => new RecipeStepDto(s.id, s.number, s.title, s.body, s.ingredients.map(i => new RecipeIngredientDto(i.id, i.number, i.name, i.unit, i.amount)))))),
                     dto.isDraft, dto.isPublic);
             }
             return null;
@@ -68,24 +68,27 @@ export class RecipeDto {
     }
 }
 export class RecipeComponentDto {
-    constructor(id, title, description, steps) {
+    constructor(id, number, title, description, steps) {
         this.id = id;
+        this.number = number;
         this.title = title;
         this.description = description;
         this.steps = steps;
     }
 }
 export class RecipeStepDto {
-    constructor(id, title, body, ingredients) {
+    constructor(id, number, title, body, ingredients) {
         this.id = id;
+        this.number = number;
         this.title = title;
         this.body = body;
         this.ingredients = ingredients;
     }
 }
 export class RecipeIngredientDto {
-    constructor(id, name, unit, amount) {
+    constructor(id, number, name, unit, amount) {
         this.id = id;
+        this.number = number;
         this.name = name;
         this.unit = unit;
         this.amount = amount;
