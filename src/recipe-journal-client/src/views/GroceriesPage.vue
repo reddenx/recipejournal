@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import ShoppingApi, { ShoppingListDto } from "../scripts/shoppingApi.js";
+import ShoppingApi, { ShoppingListDto, UpdateShoppingListDto } from "../scripts/shoppingApi.js";
 import Units from "../scripts/units.js";
 
 const shoppingApi = new ShoppingApi();
@@ -104,10 +104,8 @@ export default {
         },
         async save() {
             await shoppingApi.updateShoppingList(
-                new ShoppingListDto(
-                    this.recipes.map((r) => r.id),
-                    this.ingredients.filter((i) => i.gathered).map((i) => i.id)
-                )
+                this.recipes.map(r => ({ id: r.id, scale: r.scale })),
+                this.ingredients.filter(i => i.gathered).map(i => i.name),
             );
         },
     },

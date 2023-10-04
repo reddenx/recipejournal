@@ -2,10 +2,11 @@ export default class ShoppingApi {
     async getShoppingList() {
         return _shoppingList;
     }
-    updateShoppingList(recipeIds, gatheredIngredientIds) {
-        console.log(recipeIds, gatheredIngredientIds);
+    updateShoppingList(recipeScales, gatheredNames) {
+        console.log(recipeScales, gatheredNames);
     }
 }
+
 
 //lists recipes in list, ingredients and their shopping status
 export class ShoppingListDto {
