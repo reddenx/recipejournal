@@ -10,18 +10,27 @@ import CookingPage from '../views/CookingPage';
 import CookingListPage from "../views/CookingListPage";
 import RecipeCmsPage from "../views/RecipeCmsPage";
 import GroceriesPage from "../views/GroceriesPage.vue";
+import JournalPage from "../views/JournalPage.vue";
+import GoalsPage from "../views/GoalsPage";
+import AccountPage from "../views/AccountPage";
+import RecipeJournalPage from "../views/RecipeJournalPage.vue";
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/cook/:recipeId',
-    component: CookingPage,
-    props: true
+    path: '/',
+    name: 'home',
+    component: HomePage
   },
   {
     path: '/cook',
     component: CookingListPage,
+  },
+  {
+    path: '/cook/:recipeId',
+    component: CookingPage,
+    props: true
   },
   {
     path: '/cms/:id?',
@@ -29,14 +38,27 @@ const routes = [
     props: true,
   },
   {
-    path: '/',
-    name: 'home',
-    component: HomePage
-  },
-  {
     path:'/groceries',
     component: GroceriesPage
+  },
+  {
+    path: '/journal',
+    component: JournalPage
+  },
+  {
+    path: '/journal/:recipeId',
+    component: RecipeJournalPage,
+    props: true
+  },
+  {
+    path: '/goals',
+    component: GoalsPage
+  },
+  {
+    path: '/account',
+    component: AccountPage
   }
+
   // {
   //   path: '/recipes',
   //   name: 'recipe list',

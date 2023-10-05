@@ -1,35 +1,31 @@
 <template>
     <div class="container">
-        <div class="row">
-            <div class="col">
-                <img alt="Vue logo" src="../assets/logo.png" />
-            </div>
-            <div class="col">the recipe list!
-                <login-component />
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">recent entries: TODO (put summary cards here)</div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <router-link :to="'cook'">Recipe list here!</router-link>
-                <br />
-                <router-link :to="'groceries'">Groceries list here!</router-link>
-            </div>
+        <h1>Welcome, it's time to cook!</h1>
+        <img style="float:right" alt="Vue logo" src="../assets/logo.png" />
+        <div style="">
+            Features Overview
+            <ul>
+                <li>Simple recipe layout with scaling calculator</li>
+                <li>Recipe CMS</li>
+                <li>Shopping list sourced from recipes</li>
+                <li>Recipe journaling, notes for what happened and what to change in the future</li>
+                <li>Cooking Goals</li>
+            </ul>
         </div>
     </div>
 </template>
 
 <script>
-import LoginComponent from '../components/LoginComponent.vue';
-import RecipeApi from "../scripts/recipe_api-proto";
-
 export default {
     name: "HomeView",
-    components: {LoginComponent},
     data: () => ({}),
     async mounted() {},
     methods: {},
 };
 </script>
+
+<style scoped>
+.container {
+    max-width: 40rem;
+}
+</style>

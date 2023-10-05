@@ -14,6 +14,7 @@
             >
                 +SHOP
             </button>
+            <router-link v-if="isLoggedIn" :to="'/journal/'+recipe.id"> Journal </router-link>
         </div>
         <router-link v-if="isLoggedIn"  :to="'/cms/'">NEW</router-link>
     </div>
