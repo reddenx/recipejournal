@@ -6,9 +6,9 @@
             Features Overview
             <ul>
                 <li>Simple recipe layout with scaling calculator</li>
-                <li>Recipe CMS for easy input</li>
-                <li>Easy shopping list</li>
-                <li>Recipe journaling gathering notes for what happened and what to change in the future</li>
+                <li>Recipe CMS</li>
+                <li>Shopping list sourced from recipes</li>
+                <li>Recipe journaling, notes for what happened and what to change in the future</li>
                 <li>Cooking Goals</li>
             </ul>
         </div>
