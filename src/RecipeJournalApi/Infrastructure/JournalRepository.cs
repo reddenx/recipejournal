@@ -154,7 +154,7 @@ namespace RecipeJournalApi.Infrastructure
                         AttemptNotes = @AttemptNotes,
                         GeneralNotes = @GeneralNotes,
                         NextNotes = @NextNotes,
-                        StickyNext = @StickyNest,
+                        StickyNext = @StickyNext,
                         NextDismissed = @NextDismissed
                     where Id = @Id";
                     var success = conn.Execute(updateSql, new 
