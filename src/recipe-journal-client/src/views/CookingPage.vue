@@ -6,7 +6,7 @@
                 {{ recipe.title }}
                 </div>
                 <div>
-                    <strong>Author:</strong> SanthmasMark <strong>Time:</strong> 3 hours <strong>Yields:</strong> 30 cookies 
+                    <strong>Author:</strong> {{ recipe.author }} <strong>Time:</strong> {{ recipe.durationMinutes }} <strong>Servings:</strong> {{ recipe.servings }}
                     <button type="button" class="slider-button"> ||| </button>
                 </div>
                 <p>{{ recipe.description }}</p>
