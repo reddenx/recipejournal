@@ -13,11 +13,13 @@ namespace RecipeJournalApi.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IRecipeRepository _recipeRepo;
+        private readonly IJournalRepository _journalRepository;
 
-        public RecipeController(ILogger<HomeController> logger, IRecipeRepository recipeRepo)
+        public RecipeController(ILogger<HomeController> logger, IRecipeRepository recipeRepo, IJournalRepository journalRepository)
         {
             _logger = logger;
             _recipeRepo = recipeRepo;
+            _journalRepository = journalRepository;
         }
 
         [HttpGet("")]
@@ -124,14 +126,65 @@ namespace RecipeJournalApi.Controllers
             }
         }
 
-        [HttpPut("")]
         [Authorize]
+        [HttpPut("")]
         public ActionResult<RecipeDto> UpdateRecipe(RecipeDto recipeDto)
         {
             var user = UserInfo.FromClaimsPrincipal(this.User);
             var updated = _recipeRepo.UpdateRecipe(recipeDto, user);
             var dto = RecipeDto.FromDataType(updated);
             return dto;
+        }
+
+        [Authorize]
+        [HttpGet("{recipeId}/journal")]
+        public ActionResult<RecipeJournalListEntryDto[]> GetJournalForRecipe(Guid recipeId)
+        {
+            var user = UserInfo.FromClaimsPrincipal(this.User);
+            var entries = _journalRepository.GetEntriesForRecipe(user.Id, recipeId);
+            return entries;
+        }
+        public class RecipeJournalListEntryDto
+        {
+            public Guid Id { get; set; }
+            public Guid RecipeId { get; set; }
+            public float RecipeScale { get; set; }
+            public float SuccessRating { get; set; }
+            public DateTime Date { get; set; }
+            public bool StickyNext { get; set; }
+            public bool NextDismissed { get; set; }
+        }
+
+        [Authorize]
+        [HttpGet("{recipeId}/journal/{entryId}")]
+        public ActionResult<RecipeJournalEntryDto> GetJournalEntry(Guid entryId)
+        {
+            var user = UserInfo.FromClaimsPrincipal(this.User);
+            var entry = _journalRepository.GetEntry(user.Id, entryId);
+            return entry;
+        }
+        public class RecipeJournalEntryDto
+        {
+            public Guid? Id { get; set; }
+            public Guid RecipeId { get; set; }
+            public float RecipeScale { get; set; }
+            public float SuccessRating { get; set; }
+            public DateTime? Date { get; set; }
+            public string AttemptNotes { get; set; }
+            public string ResultNotes { get; set; }
+            public string GeneralNotes { get; set; }
+            public string NextNotes { get; set; }
+            public bool StickyNext { get; set; }
+            public bool NextDismissed { get; set; }
+        }
+
+        [Authorize]
+        [HttpPut("{recipeId}/journal")]
+        public ActionResult<RecipeJournalEntryDto> UpdateJournalEntry(RecipeJournalEntryDto entry)
+        {
+            var user = UserInfo.FromClaimsPrincipal(this.User);
+            var updated = _journalRepository.UpdateEntry(user.Id, entry);
+            return updated;
         }
     }
 }
