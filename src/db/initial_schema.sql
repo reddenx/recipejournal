@@ -110,11 +110,20 @@ create table shopping_gathered
     IngredientId varchar(32) not null
 );
 
---incomplete
 create table recipe_journal_entry
 (
     Id varchar(32) not null,
     UserId varchar(32) not null,
-    DateCreated varchar(32) not null,
-    -- more product work required
+    RecipeId varchar(32) not null,
+    DateCreated datetime not null,
+    DateModified datetime not null,
+
+    EntryDate datetime not null,
+    SuccessRating float not null,
+    RecipeScale float not null,
+    AttemptNotes text not null,
+    GeneralNotes text not null,
+    NextNotes text not null,
+    StickyNext bit not null,
+    NextDismissed bit not null
 );

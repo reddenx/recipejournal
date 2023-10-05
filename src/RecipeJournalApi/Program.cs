@@ -40,6 +40,7 @@ namespace RecipeJournalApi
             builder.Services.AddSingleton<IShoppingRepository, ShoppingRepository>();
             builder.Services.AddSingleton<IRecipeRepository, RecipeRepository>();
             builder.Services.AddSingleton<IUserRepository, UserRepository>();
+            builder.Services.AddSingleton<IJournalRepository, JournalRepository>();
 #endif
 
             builder.Services.AddControllers();

@@ -14,6 +14,131 @@ namespace RecipeJournalApi.Infrastructure
         RecipeJournalEntryDto UpdateEntry(Guid userId, RecipeJournalEntryDto entry);
     }
 
+    public class JournalRepository : IJournalRepository
+    {
+        private readonly string _connectionString;
+
+        public JournalRepository(IDbConfig config)
+        {
+            _connectionString = config.ConnectionString;
+        }
+
+        public RecipeJournalListEntryDto[] GetEntriesForRecipe(Guid userId, Guid recipeId)
+        {
+            var sql = @"
+            select 
+                j.Id,
+                j.RecipeId,
+                j.RecipeScale,
+                j.SuccessRating,
+                j.EntryDate,
+                j.StickyNext,
+                j.NextDismissed
+            from recipe_journal_entry j
+            where j.UserId = @UserId and j.RecipeId = @RecipeId";
+
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                var results = conn.Query<RecipeJournalListData>(sql, new
+                {
+                    UserId = userId.ToString("N"),
+                    RecipeId = recipeId.ToString("N")
+                });
+
+                return results.Select(r => new RecipeJournalListEntryDto
+                {
+                    Id = Guid.Parse(r.Id),
+                    RecipeId = Guid.Parse(r.RecipeId),
+                    RecipeScale = r.RecipeScale,
+                    SuccessRating = r.SuccessRating,
+                    Date = r.EntryDate,
+                    StickyNext = r.StickyNext,
+                    NextDismissed = r.NextDismissed
+                }).ToArray();
+            }
+        }
+
+        public RecipeJournalEntryDto GetEntry(Guid userId, Guid entryId)
+        {
+            var sql = @"
+            select 
+                j.Id,
+                j.UserId,
+                j.RecipeId,
+                j.DateCreated,
+                j.DateModified,
+                j.EntryDate,
+                j.SuccessRating,
+                j.RecipeScale,
+                j.AttemptNotes,
+                j.GeneralNotes,
+                j.NextNotes,
+                j.StickyNext,
+                j.NextDismissed
+            from recipe_journal_entry j
+            where j.UserId = @UserId and j.Id = @Id
+                ";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                var result = conn.Query<RecipeJournalData>(sql, new
+                {
+                    UserId = userId.ToString("N"),
+                    Id = entryId.ToString("N")
+                }).FirstOrDefault();
+
+                if (result == null)
+                    return null;
+
+                return new RecipeJournalEntryDto
+                {
+                    Id = Guid.Parse(result.Id),
+                    RecipeId = Guid.Parse(result.RecipeId),
+                    Date = result.EntryDate,
+                    SuccessRating = result.SuccessRating,
+                    RecipeScale = result.RecipeScale,
+                    AttemptNotes = result.AttemptNotes,
+                    GeneralNotes = result.GeneralNotes,
+                    NextNotes = result.NextNotes,
+                    NextDismissed = result.NextDismissed,
+                    StickyNext = result.StickyNext,
+                };
+            }
+        }
+
+        public RecipeJournalEntryDto UpdateEntry(Guid userId, RecipeJournalEntryDto entry)
+        {
+            throw new NotImplementedException();
+        }
+
+        class RecipeJournalListData
+        {
+            public string Id { get; set; }
+            public string RecipeId { get; set; }
+            public float RecipeScale { get; set; }
+            public float SuccessRating { get; set; }
+            public DateTime EntryDate { get; set; }
+            public bool StickyNext { get; set; }
+            public bool NextDismissed { get; set; }
+        }
+
+        class RecipeJournalData
+        {
+            public string Id { get; set; }
+            public string UserId { get; set; }
+            public string RecipeId { get; set; }
+            public DateTime DateCreated { get; set; }
+            public DateTime DateModified { get; set; }
+            public DateTime EntryDate { get; set; }
+            public float SuccessRating { get; set; }
+            public float RecipeScale { get; set; }
+            public string AttemptNotes { get; set; }
+            public string GeneralNotes { get; set; }
+            public string NextNotes { get; set; }
+            public bool StickyNext { get; set; }
+            public bool NextDismissed { get; set; }
+        }
+    }
+
     public class MockJournalRepository : IJournalRepository
     {
         public RecipeJournalListEntryDto[] GetEntriesForRecipe(Guid userId, Guid recipeId)
