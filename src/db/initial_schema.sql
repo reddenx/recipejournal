@@ -122,6 +122,7 @@ create table recipe_journal_entry
     SuccessRating float not null,
     RecipeScale float not null,
     AttemptNotes text not null,
+    ResultNotes text not null,
     GeneralNotes text not null,
     NextNotes text not null,
     StickyNext bit not null,

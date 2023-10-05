@@ -78,6 +78,7 @@ namespace RecipeJournalApi.Infrastructure
                 j.SuccessRating,
                 j.RecipeScale,
                 j.AttemptNotes,
+                j.ResultNotes,
                 j.GeneralNotes,
                 j.NextNotes,
                 j.StickyNext,
@@ -102,6 +103,7 @@ namespace RecipeJournalApi.Infrastructure
                 SuccessRating = result.SuccessRating,
                 RecipeScale = result.RecipeScale,
                 AttemptNotes = result.AttemptNotes,
+                ResultNotes = result.ResultNotes,
                 GeneralNotes = result.GeneralNotes,
                 NextNotes = result.NextNotes,
                 NextDismissed = result.NextDismissed,
@@ -116,8 +118,8 @@ namespace RecipeJournalApi.Infrastructure
                 if (!entry.Id.HasValue)
                 {
                     var insertSql = @"
-                    insert into recipe_journal_entry (Id, UserId, RecipeId, DateCreated, DateModified, EntryDate, SuccessRating, RecipeScale, AttemptNotes, GeneralNotes, NextNotes, StickyNext, NextDismissed)
-                    values (@Id, @UserId, @RecipeId, @DateCreated, @DateModified, @EntryDate, @SuccessRating, @RecipeScale, @AttemptNotes, @GeneralNotes, @NextNotes, @StickyNext, @NextDismissed)";
+                    insert into recipe_journal_entry (Id, UserId, RecipeId, DateCreated, DateModified, EntryDate, SuccessRating, RecipeScale, AttemptNotes, ResultNotes, GeneralNotes, NextNotes, StickyNext, NextDismissed)
+                    values (@Id, @UserId, @RecipeId, @DateCreated, @DateModified, @EntryDate, @SuccessRating, @RecipeScale, @AttemptNotes, @ResultNotes, @GeneralNotes, @NextNotes, @StickyNext, @NextDismissed)";
 
                     var id = Guid.NewGuid();
 
@@ -132,6 +134,7 @@ namespace RecipeJournalApi.Infrastructure
                         SuccessRating = entry.SuccessRating,
                         RecipeScale = entry.RecipeScale,
                         AttemptNotes = entry.AttemptNotes,
+                        ResultNotes = entry.ResultNotes,
                         GeneralNotes = entry.GeneralNotes,
                         NextNotes = entry.NextNotes,
                         StickyNext = entry.StickyNext,
@@ -152,12 +155,13 @@ namespace RecipeJournalApi.Infrastructure
                         SuccessRating = @SuccessRating,
                         RecipeScale = @RecipeScale,
                         AttemptNotes = @AttemptNotes,
+                        ResultNotes = @ResultNotes,
                         GeneralNotes = @GeneralNotes,
                         NextNotes = @NextNotes,
                         StickyNext = @StickyNext,
                         NextDismissed = @NextDismissed
                     where Id = @Id";
-                    var success = conn.Execute(updateSql, new 
+                    var success = conn.Execute(updateSql, new
                     {
                         Id = entry.Id.Value.ToString("N"),
                         DateModified = DateTime.Now,
@@ -165,12 +169,13 @@ namespace RecipeJournalApi.Infrastructure
                         SuccessRating = entry.SuccessRating,
                         RecipeScale = entry.RecipeScale,
                         AttemptNotes = entry.AttemptNotes,
+                        ResultNotes = entry.ResultNotes,
                         GeneralNotes = entry.GeneralNotes,
                         NextNotes = entry.NextNotes,
                         StickyNext = entry.StickyNext,
                         NextDismissed = entry.NextDismissed
                     }) > 0;
-                    if(!success)
+                    if (!success)
                         return null;
 
                     return entry;
@@ -200,6 +205,7 @@ namespace RecipeJournalApi.Infrastructure
             public float SuccessRating { get; set; }
             public float RecipeScale { get; set; }
             public string AttemptNotes { get; set; }
+            public string ResultNotes { get; set; }
             public string GeneralNotes { get; set; }
             public string NextNotes { get; set; }
             public bool StickyNext { get; set; }

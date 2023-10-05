@@ -171,6 +171,7 @@ namespace RecipeJournalApi.Controllers
             public float SuccessRating { get; set; }
             public DateTime? Date { get; set; }
             public string AttemptNotes { get; set; }
+            public string ResultNotes { get; set; }
             public string GeneralNotes { get; set; }
             public string NextNotes { get; set; }
             public bool StickyNext { get; set; }
