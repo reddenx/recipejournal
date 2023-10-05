@@ -117,7 +117,7 @@ export default {
 
 </script>
 
-<style>
+<style scoped>
 .article-container {
     max-width: 40rem;
     margin-left: auto;
@@ -191,5 +191,9 @@ button.slider-button {
 
 .section.section-completed {
      text-decoration: line-through; 
+}
+
+p {
+    white-space: pre-wrap;
 }
 </style>
