@@ -60,6 +60,13 @@ namespace RecipeJournalApi.Infrastructure
 
         public RecipeJournalEntryDto GetEntry(Guid userId, Guid entryId)
         {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                return GetEntryConn(conn, userId, entryId);
+            }
+        }
+        private RecipeJournalEntryDto GetEntryConn(MySqlConnection conn, Guid userId, Guid entryId)
+        {
             var sql = @"
             select 
                 j.Id,
@@ -78,36 +85,97 @@ namespace RecipeJournalApi.Infrastructure
             from recipe_journal_entry j
             where j.UserId = @UserId and j.Id = @Id
                 ";
-            using (var conn = new MySqlConnection(_connectionString))
+            var result = conn.Query<RecipeJournalData>(sql, new
             {
-                var result = conn.Query<RecipeJournalData>(sql, new
-                {
-                    UserId = userId.ToString("N"),
-                    Id = entryId.ToString("N")
-                }).FirstOrDefault();
+                UserId = userId.ToString("N"),
+                Id = entryId.ToString("N")
+            }).FirstOrDefault();
 
-                if (result == null)
-                    return null;
+            if (result == null)
+                return null;
 
-                return new RecipeJournalEntryDto
-                {
-                    Id = Guid.Parse(result.Id),
-                    RecipeId = Guid.Parse(result.RecipeId),
-                    Date = result.EntryDate,
-                    SuccessRating = result.SuccessRating,
-                    RecipeScale = result.RecipeScale,
-                    AttemptNotes = result.AttemptNotes,
-                    GeneralNotes = result.GeneralNotes,
-                    NextNotes = result.NextNotes,
-                    NextDismissed = result.NextDismissed,
-                    StickyNext = result.StickyNext,
-                };
-            }
+            return new RecipeJournalEntryDto
+            {
+                Id = Guid.Parse(result.Id),
+                RecipeId = Guid.Parse(result.RecipeId),
+                Date = result.EntryDate,
+                SuccessRating = result.SuccessRating,
+                RecipeScale = result.RecipeScale,
+                AttemptNotes = result.AttemptNotes,
+                GeneralNotes = result.GeneralNotes,
+                NextNotes = result.NextNotes,
+                NextDismissed = result.NextDismissed,
+                StickyNext = result.StickyNext,
+            };
         }
 
         public RecipeJournalEntryDto UpdateEntry(Guid userId, RecipeJournalEntryDto entry)
         {
-            throw new NotImplementedException();
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                if (!entry.Id.HasValue)
+                {
+                    var insertSql = @"
+                    insert into recipe_journal_entry (Id, UserId, RecipeId, DateCreated, DateModified, EntryDate, SuccessRating, RecipeScale, AttemptNotes, GeneralNotes, NextNotes, StickyNext, NextDismissed)
+                    values (@Id, @UserId, @RecipeId, @DateCreated, @DateModified, @EntryDate, @SuccessRating, @RecipeScale, @AttemptNotes, @GeneralNotes, @NextNotes, @StickyNext, @NextDismissed)";
+
+                    var id = Guid.NewGuid();
+
+                    var success = conn.Execute(insertSql, new
+                    {
+                        Id = id.ToString("N"),
+                        UserId = userId.ToString("N"),
+                        RecipeId = entry.RecipeId.ToString("N"),
+                        DateCreated = DateTime.Now,
+                        DateModified = DateTime.Now,
+                        EntryDate = entry.Date ?? DateTime.Now,
+                        SuccessRating = entry.SuccessRating,
+                        RecipeScale = entry.RecipeScale,
+                        AttemptNotes = entry.AttemptNotes,
+                        GeneralNotes = entry.GeneralNotes,
+                        NextNotes = entry.NextNotes,
+                        StickyNext = entry.StickyNext,
+                        NextDismissed = entry.NextDismissed
+                    }) > 0;
+                    if (!success)
+                        return null;
+
+                    return GetEntryConn(conn, userId, id);
+                }
+                else
+                {
+                    var updateSql = @"
+                    update recip_journal_entry
+                    set
+                        DateModified = @DateModified,
+                        EntryDate = @EntryDate,
+                        SuccessRating = @SuccessRating,
+                        RecipeScale = @RecipeScale,
+                        AttemptNotes = @AttemptNotes,
+                        GeneralNotes = @GeneralNotes,
+                        NextNotes = @NextNotes,
+                        StickyNext = @StickyNest,
+                        NextDismissed = @NextDismissed
+                    where Id = @Id";
+                    var success = conn.Execute(updateSql, new 
+                    {
+                        Id = entry.Id.Value.ToString("N"),
+                        DateModified = DateTime.Now,
+                        EntryDate = entry.Date ?? DateTime.Now,
+                        SuccessRating = entry.SuccessRating,
+                        RecipeScale = entry.RecipeScale,
+                        AttemptNotes = entry.AttemptNotes,
+                        GeneralNotes = entry.GeneralNotes,
+                        NextNotes = entry.NextNotes,
+                        StickyNext = entry.StickyNext,
+                        NextDismissed = entry.NextDismissed
+                    }) > 0;
+                    if(!success)
+                        return null;
+
+                    return entry;
+                }
+            }
         }
 
         class RecipeJournalListData
