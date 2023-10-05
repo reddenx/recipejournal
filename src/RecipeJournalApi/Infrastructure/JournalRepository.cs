@@ -145,7 +145,7 @@ namespace RecipeJournalApi.Infrastructure
                 else
                 {
                     var updateSql = @"
-                    update recip_journal_entry
+                    update recipe_journal_entry
                     set
                         DateModified = @DateModified,
                         EntryDate = @EntryDate,
