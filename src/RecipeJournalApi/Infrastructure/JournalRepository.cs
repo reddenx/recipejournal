@@ -148,19 +148,19 @@ namespace RecipeJournalApi.Infrastructure
             var items = _mockDb[userId].Where(e => e.RecipeId == recipeId);
             if (!items.Any())
             {
-                _mockDb[userId].Add(new RecipeJournalEntryDto
-                {
-                    Id = Guid.NewGuid(),
-                    AttemptNotes = "wanted to try that new thingy",
-                    Date = new DateTime(2023, 10, 4),
-                    GeneralNotes = "this recipe is meh",
-                    NextDismissed = false,
-                    NextNotes = "next time try more anger",
-                    RecipeId = recipeId,
-                    RecipeScale = 1,
-                    StickyNext = true,
-                    SuccessRating = .5f
-                });
+                // _mockDb[userId].Add(new RecipeJournalEntryDto
+                // {
+                //     Id = Guid.NewGuid(),
+                //     AttemptNotes = "wanted to try that new thingy",
+                //     Date = new DateTime(2023, 10, 4),
+                //     GeneralNotes = "this recipe is meh",
+                //     NextDismissed = false,
+                //     NextNotes = "next time try more anger",
+                //     RecipeId = recipeId,
+                //     RecipeScale = 1,
+                //     StickyNext = true,
+                //     SuccessRating = .5f
+                // });
             }
 
             return _mockDb[userId].Select(e => new RecipeJournalListEntryDto

@@ -53,7 +53,7 @@
                 </div>
             </div>
         </template>
-        <button v-show="journalEntries.length && journalEntries[journalEntries.length-1].listItem.id" type="button" @click="addNewButtonPressed">+New</button>
+        <button v-show="journalEntries" type="button" @click="addNewButtonPressed">+New</button>
     </div>
 </template>
 
