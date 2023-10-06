@@ -15,10 +15,11 @@ export default class UserApi {
     createUser() {
         return false;
     }
-    async login(username) {
+    async login(username, secret) {
         try {
             let result = await axios.post('/api/v1/users/login', {
-                username: username
+                username: username,
+                secret: secret
             });
             return result.status == 204;
         } catch {

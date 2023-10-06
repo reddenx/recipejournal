@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RecipeJournalApi
 {
-    public class SiteConfig : IDbConfig
+    public class SiteConfig : IDbConfig, IAuthenticationProxyConfiguration
     {
         private readonly IConfiguration _config;
 
@@ -20,6 +20,8 @@ namespace RecipeJournalApi
         }
 
         public string ConnectionString => _config.GetConnectionString("recipe");
+        public string AccountServerUrl => _config.GetSection("AuthenticationConfiguration")["Url"];
+        public string AccountIntegrationName => _config.GetSection("AuthenticationConfiguration")["IntegrationName"];
     }
 
     public class Program
@@ -31,12 +33,16 @@ namespace RecipeJournalApi
 
             // Add services to the container.
             builder.Services.AddSingleton<IDbConfig, SiteConfig>();
+            builder.Services.AddSingleton<IAuthenticationProxyConfiguration, SiteConfig>();
+            builder.Services.AddHttpClient();
 #if DEBUG
+            builder.Services.AddSingleton<IAuthenticationProxy, MockAuthProxy>();
             builder.Services.AddSingleton<IRecipeRepository, MockRecipeRepository>();
             builder.Services.AddSingleton<IUserRepository, MockUserRepository>();
             builder.Services.AddSingleton<IShoppingRepository, MockShoppingRepository>();
             builder.Services.AddSingleton<IJournalRepository, MockJournalRepository>();
 #else
+            builder.Services.AddSingleton<IAuthenticationProxy, AuthenticationProxy>();
             builder.Services.AddSingleton<IShoppingRepository, ShoppingRepository>();
             builder.Services.AddSingleton<IRecipeRepository, RecipeRepository>();
             builder.Services.AddSingleton<IUserRepository, UserRepository>();
@@ -70,8 +76,6 @@ namespace RecipeJournalApi
             var app = builder.Build();
 
             app.UseStaticFiles();
-            app.UseRouting();
-            app.MapControllers();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -79,6 +83,9 @@ namespace RecipeJournalApi
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseRouting();
+            app.MapControllers();
 
             app.UseAuthentication();
             app.UseAuthorization();
