@@ -17,11 +17,13 @@ namespace RecipeJournalApi.Controllers
     {
         private readonly ILogger<UserController> _logger;
         private readonly IUserRepository _userRepo;
+        private readonly IAuthenticationProxy _authProxy;
 
-        public UserController(ILogger<UserController> logger, IUserRepository userRepo)
+        public UserController(ILogger<UserController> logger, IUserRepository userRepo, IAuthenticationProxy authProxy)
         {
             _logger = logger;
             _userRepo = userRepo;
+            _authProxy = authProxy;
         }
 
         [HttpGet("")]
@@ -43,6 +45,7 @@ namespace RecipeJournalApi.Controllers
         public class CreateUserDto
         {
             public string Username { get; set; }
+            public string Secret {get;set;}
         }
 
         [HttpPost("")]
@@ -54,15 +57,23 @@ namespace RecipeJournalApi.Controllers
         public class LoginDto
         {
             public string Username { get; set; }
+            public string Secret {get;set;}
         }
 
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto login)
         {
-            //TODO validate login
             var user = _userRepo.GetUser(login.Username);
 
+            //TODO probably want to randomize a delay to prevent distinguishing these 400s from a malicious user
+            if(user == null)
+                return StatusCode(400);
+            
+            var areValidCredentials = await _authProxy.AuthenticateAccount(user.Id, login.Secret);
+            if(!areValidCredentials)
+                return StatusCode(400);
+            
             var authProperties = new AuthenticationProperties();
             var claims = user.ToClaims();
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

@@ -9,7 +9,10 @@
             <!-- <router-link to="/goals">Goals</router-link> | -->
             <router-link to="/groceries">Groceries</router-link> |
         </template>
-        <login-component @login="handleLogin" @logout="handleLogout" />
+        <button type="button" v-show="!showLoginComponent && !isLoggedIn" @click="showLoginButtonPressed"> -&gt; </button>
+        <div class="nav-inline" v-show="showLoginComponent || isLoggedIn">
+            <login-component @login="handleLogin" @logout="handleLogout" />
+        </div>
     </div>
 </template>
 
@@ -20,6 +23,7 @@ export default {
     components: { LoginComponent },
     data: () => ({
         isLoggedIn: false,
+        showLoginComponent: false,
     }),
     methods: {
         handleLogin(username) {
@@ -28,11 +32,17 @@ export default {
         handleLogout() {
             this.isLoggedIn = false;
         },
+        showLoginButtonPressed() {
+            this.showLoginComponent = true;
+        }
     },
 };
 </script>
 
 <style local>
+.nav-inline {
+    display: inline-block;
+}
 .hero-logo-img {
     width: 3em;
     height: 3em;
