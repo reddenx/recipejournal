@@ -131,6 +131,7 @@ export default {
   data: () => ({
     recipe: null,
     ingredients: [],
+    saving: false,
   }),
   watch: {
     recipe: {
@@ -152,6 +153,10 @@ export default {
       return Units.getUnitForQty(unit, amount);
     },
     async saveRecipe() {
+      if(this.saving)
+        return;
+      this.saving = true;
+
 
       //renumber to match cms UI
       this.recipe.components.forEach((c, i) => {
@@ -164,7 +169,13 @@ export default {
         });
       });
       
-      await recipeApi.updateRecipe(this.recipe);
+      let result = await recipeApi.updateRecipe(this.recipe);
+      //if we just saved a new recipe, change url
+      if(!this.id && result) {
+        this.$router.replace({path:`/cms/${result.id}`});
+      }
+      this.recipe = result;
+      this.saving = false;
     },
     removeComponent(component) {
       let index = this.recipe.components.indexOf(component);
