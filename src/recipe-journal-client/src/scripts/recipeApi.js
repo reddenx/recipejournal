@@ -32,8 +32,10 @@ export default class RecipeApi {
         try {
             let result = await axios.put('/api/v1/recipes', recipeDto);
             if (result.data) {
-                let dto = new RecipeComponentDto(result.data.id, result.data.number, result.data.title, result.data.description, result.data.steps.map(s => new RecipeStepDto(s.id, s.number, s.title, s.body, s.ingredients.map(i => new RecipeIngredientDto(i.id, i.number, i.name, i.unit, i.amount)))));
-                return dto;
+                let dto = result.data;
+                return new RecipeDto(dto.id, dto.title, dto.description, dto.author, dto.durationMinutes, dto.servings,
+                    dto.components.map(c => new RecipeComponentDto(c.id, c.number, c.title, c.description, c.steps.map(s => new RecipeStepDto(s.id, s.number, s.title, s.body, s.ingredients.map(i => new RecipeIngredientDto(i.id, i.number, i.name, i.unit, i.amount)))))),
+                    dto.isDraft, dto.isPublic)
             }
             return null;
         } catch {
