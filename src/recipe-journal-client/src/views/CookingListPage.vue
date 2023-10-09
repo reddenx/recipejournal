@@ -25,25 +25,111 @@
                         <!-- <div class="tag">baking</div> -->
                     </div>
                     <div class="recipe-list-item-bottom grid-r">
-                        <div class="rating-container">x x x x o (15)</div>
-                        <div class="success-bar-container">
-                            <div class="success-bar">|====--|</div>
+                        <div class="rating-container" v-if="typeof recipe.rating == 'number'">
+                            <span
+                                class="fa-star"
+                                :class="{
+                                    'fa-solid': recipe.starCount >= 1,
+                                    'fa-regular': recipe.starCount < 1,
+                                }"
+                            ></span>
+                            <span
+                                class="fa-star"
+                                :class="{
+                                    'fa-solid': recipe.starCount >= 2,
+                                    'fa-regular': recipe.starCount < 2,
+                                }"
+                            ></span>
+                            <span
+                                class="fa-star"
+                                :class="{
+                                    'fa-solid': recipe.starCount >= 3,
+                                    'fa-regular': recipe.starCount < 3,
+                                }"
+                            ></span>
+                            <span
+                                class="fa-star"
+                                :class="{
+                                    'fa-solid': recipe.starCount >= 4,
+                                    'fa-regular': recipe.starCount < 4,
+                                }"
+                            ></span>
+                            <span
+                                class="fa-star"
+                                :class="{
+                                    'fa-solid': recipe.starCount == 5,
+                                    'fa-regular': recipe.starCount < 5,
+                                }"
+                            ></span>
+                            ({{ recipe.ratingCount }})
                         </div>
-                        <div class="cooked-counter"></div>
+                        <div class="success-bar-container" v-if="recipe.mySuccess">
+                            <div
+                                class="success-bar"
+                                :style="{ width: recipe.mySuccess * 100 + '%' }"
+                            ></div>
+                        </div>
+                        <router-link class="last-cooked-date" :to="'/journal/' + recipe.id">
+                            <span class="fa-solid fa-book"></span>
+                            <span v-if="recipe.myAttemptCount">({{ recipe.myAttemptCount }}){{ recipe.dateLastAttempted.toLocaleDateString() }}</span>
+                        </router-link>
+                        <div v-if="recipe.goalCount">
+                            <span class="fa-regular fa-lightbulb"></span> {{ recipe.goalCount }}
+                        </div>
                     </div>
                     <div class="recipe-list-item-right">
-                        <div class="author-icon">Sean</div>
-                        <button type="button">Edit</button>
-                        <button type="button">Journal</button>
+                        <!-- <div class="author-icon">Sean</div> -->
+                        <button
+                            type="button"
+                            @click="$router.push('/cms/' + recipe.id)"
+                        >
+                            <span class="fa-solid fa-pen-to-square"></span>
+                        </button>
                         <div class="shopping-widget-container">
-                            <button type="button">-</button>
-                            <input type="number" />
-                            <button type="button">+</button>
+                            <button
+                                class="shopping-cart-button"
+                                @click="plusShopButtonPressed(recipe)"
+                                v-show="recipe.amountShoppingFor == 0"
+                            >
+                                <span class="fa-solid fa-cart-plus"></span>
+                            </button>
+                            <div v-show="recipe.amountShoppingFor > 0">
+                                <button
+                                    type="button"
+                                    @click="minusShopButtonPressed(recipe)"
+                                    class="shopping-minus-button"
+                                >
+                                    <span
+                                        v-if="recipe.amountShoppingFor <= 1"
+                                        class="fa-solid fa-trash-can"
+                                    ></span>
+                                    <span v-else>-</span>
+                                </button>
+                                <input
+                                    type="number"
+                                    :value="recipe.amountShoppingFor"
+                                    @input="
+                                        shopInputChanged(
+                                            recipe,
+                                            $event.target.value
+                                        )
+                                    "
+                                />
+                                <button
+                                    class="shopping-plus-button"
+                                    type="button"
+                                    @click="
+                                        recipe.amountShoppingFor += 1;
+                                        shopRecipeAmountChanged(recipe);
+                                    "
+                                >
+                                    +
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </template>
@@ -65,6 +151,7 @@ class RecipeListItemViewmodel {
         tags,
         author,
         rating,
+        ratingCount,
         allAttemptCount,
         version,
         dateLastModified,
@@ -74,7 +161,7 @@ class RecipeListItemViewmodel {
         mySuccess,
         dateLastAttempted,
         myAttemptCount,
-        goals,
+        goalCount,
         myNextCount,
         isPublic,
         isDraft,
@@ -86,6 +173,8 @@ class RecipeListItemViewmodel {
         this.tags = tags?.length ? tags : [];
         this.author = author;
         this.rating = rating;
+        this.starCount = ratingCount > 0 ? Math.round(1 + rating * 4) : 0;
+        this.ratingCount = ratingCount;
         this.allAttemptCount = allAttemptCount;
         this.version = version;
         this.dateLastModified = dateLastModified;
@@ -97,45 +186,119 @@ class RecipeListItemViewmodel {
         this.mySuccess = mySuccess;
         this.dateLastAttempted = dateLastAttempted;
         this.myAttemptCount = myAttemptCount;
-        this.goals = goals;
+        this.goalCount = goalCount;
         this.myNextCount = myNextCount;
         this.isPublic = isPublic;
         this.isDraft = isDraft;
         this.amountShoppingFor = amountShoppingFor;
-        this.showShoppingWidget = false;
     }
 }
 
 export default {
     data: () => ({
         recipes: [],
+        recipeDtos: [],
         shoppingRecipeIds: [],
         isLoggedIn: false,
     }),
     async mounted() {
-        this.recipes = await recipeApi.getRecipeList();
+        this.recipeDtos = await recipeApi.getRecipeList();
         let user = await userApi.getLoggedInUser();
+
         if (user) {
             let shoppingList = await shoppingApi.getShoppingList();
+
+            this.recipes = this.recipeDtos.map(
+                (r) =>
+                    new RecipeListItemViewmodel(
+                        r.id,
+                        r.title,
+                        [],
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        r.servings,
+                        r.durationMinutes,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        true,
+                        false,
+                        shoppingList.recipes.find((l) => l.id == r.id)?.scale ??
+                            0
+                    )
+            );
+
             this.shoppingRecipeIds = shoppingList.recipes.map((r) => r.id);
             this.isLoggedIn = true;
         } else {
+            this.recipes = this.recipeDtos.map(
+                (r) =>
+                    new RecipeListItemViewmodel(
+                        r.id,
+                        r.title,
+                        [],
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        r.servings,
+                        r.durationMinutes,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        true,
+                        false,
+                        null
+                    )
+            );
+
             this.isLoggedIn = false;
         }
     },
     methods: {
-        async shopRecipeButton(recipe) {
+        async shopRecipeAmountChanged(recipe) {
             let list = await shoppingApi.getShoppingList();
+
+            let i = list.recipes.findIndex((r) => r.id == recipe.id);
+            if (i >= 0) list.recipes.splice(i, 1);
+
             let scales = list.recipes.map((r) => ({
                 id: r.id,
                 scale: r.scale,
             }));
             await shoppingApi.updateShoppingList(
-                [{ id: recipe.id, scale: 1 }, ...scales],
+                [{ id: recipe.id, scale: recipe.amountShoppingFor }, ...scales],
                 list.gatheredIds
             );
             this.shoppingRecipeIds = list.recipes.map((r) => r.id);
             this.shoppingRecipeIds.push(recipe.id);
+        },
+        async plusShopButtonPressed(recipe) {
+            recipe.amountShoppingFor += 1;
+            await this.shopRecipeAmountChanged(recipe);
+        },
+        async minusShopButtonPressed(recipe) {
+            recipe.amountShoppingFor = Math.max(
+                0,
+                recipe.amountShoppingFor - 1
+            );
+            await this.shopRecipeAmountChanged(recipe);
+        },
+        async shopInputChanged(recipe, input) {
+            Math.max((recipe.amountShoppingFor = Number(input)), 0);
+            await this.shopRecipeAmountChanged(recipe);
         },
     },
 };
@@ -163,25 +326,47 @@ export default {
     grid-row-start: 2;
     display: flex;
     flex-direction: row;
+    gap: 1em;
 }
 .recipe-list-item-right {
     grid-column-start: 2;
     grid-row-start: 1;
     grid-row-end: 3;
     display: flex;
+    align-items: center;
     flex-direction: row;
 }
 
-
 .shopping-widget-container {
-    max-width: 100px;
+}
+.shopping-widget-container button {
+    width: 2.3em;
+    height: 2.3em;
+    border-radius: 8px;
+}
+.shopping-cart-button {
+    border: 3px solid #64d564;
+    background-color: #90ff94;
+}
+.shopping-minus-button {
+    border: 3px solid #e20000;
+    background-color: #ff8686;
+}
+.shopping-plus-button {
+    border: 3px solid #64d564;
+    background-color: #90ff94;
 }
 .shopping-widget-container input {
-    max-width: 2em;
+    max-width: 3em;
+    text-align: center;
+    border: 3px solid;
+    border-left: none;
+    border-right: none;
+    border-radius: 5px;
 }
 
 .author-icon {
-
+    padding: 1em;
 }
 
 /* 
@@ -216,7 +401,17 @@ export default {
 }
 .label {
 }
+.success-bar-container {
+    width: 5em;
+    background-color: rgb(184, 184, 255);
+    border-radius: 2.5em;
+    height: 70%;
+}
 .success-bar {
+    background-color: rgb(131, 251, 255);
+    height: 100%;
+    border-top-left-radius: 2.5em;
+    border-bottom-left-radius: 2.5em;
 }
 .author-icon {
 }
