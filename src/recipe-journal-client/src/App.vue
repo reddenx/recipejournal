@@ -1,6 +1,8 @@
 <template>
     <div id="app">
-        <navigation-bar />
+        <div class="layout-nav">
+            <navigation-bar />
+        </div>
         <router-view />
     </div>
 </template>
@@ -17,7 +19,54 @@ export default {
 </script>
 
 <style>
-</style>
+.layout-container {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+}
+.layout-leftbar {
+    /* from 160px+ stacks vertically after that*/
+    grid-column-start: 1;
+    grid-row-start: 1;
+}
+.layout-rightbar {
+    /* from 160px+ stacks vertically after that*/
+    grid-column-start: 3;
+    grid-row-start: 1;
+}
+.layout-body {
+    min-width: 30rem;
+    grid-column-start: 2;
+    grid-row-start: 1;
+}
+.layout-nav {
+    /*  */
+    text-align: center;
+}
+.layout-footer {
+}
 
-<style>
+@media only screen and (max-width: 800px) {
+    .layout-container {
+        display: grid;
+        grid-template-columns: auto;
+        grid-template-rows: auto;
+        margin-left: .25em;
+        margin-right: .25em;
+    }
+    .layout-leftbar {
+        /* from 160px+ stacks vertically after that*/
+        grid-column-start: 1;
+        grid-row-start: 1;
+    }
+    .layout-rightbar {
+        /* from 160px+ stacks vertically after that*/
+        grid-column-start: 1;
+        grid-row-start: 2;
+    }
+    .layout-body {
+        min-width: inherit;
+        grid-column-start: 1;
+        grid-row-start: 3;
+    }
+}
 </style>
