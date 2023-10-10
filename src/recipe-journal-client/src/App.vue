@@ -34,7 +34,7 @@ export default {
     grid-row-start: 1;
 }
 .layout-body {
-    min-width: 30rem;
+    min-width: 40rem;
     grid-column-start: 2;
     grid-row-start: 1;
 }

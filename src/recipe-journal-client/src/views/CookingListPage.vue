@@ -17,7 +17,7 @@
                             }}</router-link>
                         </div>
                         <div class="duration" v-show="recipe.duration">
-                            {{ recipe.durationMinutes }} minutes
+                            {{ recipe.duration }}min
                         </div>
                         <div class="servings" v-show="recipe.servings">
                             {{ recipe.servings }} servings
@@ -308,6 +308,9 @@ export default {
 .recipe-list-item-top {
     grid-column-start: 1;
     grid-row-start: 1;
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
 }
 .recipe-list-item-bottom {
     grid-column-start: 1;
