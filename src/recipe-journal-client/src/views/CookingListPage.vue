@@ -85,7 +85,8 @@
                         >
                             <span class="fa-solid fa-pen-to-square"></span>
                         </button>
-                        <div class="shopping-widget-container">
+                        <ShoppingWidget v-model="recipe.amountShoppingFor" @input="shopRecipeAmountChanged(recipe, $event)" />
+                        <!-- <div class="shopping-widget-container">
                             <button
                                 class="shopping-cart-button"
                                 @click="plusShopButtonPressed(recipe)"
@@ -126,7 +127,7 @@
                                     +
                                 </button>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -139,6 +140,7 @@
 import RecipeApi from "../scripts/recipeApi";
 import ShoppingApi from "../scripts/shoppingApi";
 import UserApi from "../scripts/userApi";
+import ShoppingWidget from "../components/ShoppingWidget.vue";
 
 const recipeApi = new RecipeApi();
 const shoppingApi = new ShoppingApi();
@@ -195,6 +197,7 @@ class RecipeListItemViewmodel {
 }
 
 export default {
+    components: { ShoppingWidget },
     data: () => ({
         recipes: [],
         recipeDtos: [],
@@ -284,22 +287,7 @@ export default {
             );
             this.shoppingRecipeIds = list.recipes.map((r) => r.id);
             this.shoppingRecipeIds.push(recipe.id);
-        },
-        async plusShopButtonPressed(recipe) {
-            recipe.amountShoppingFor += 1;
-            await this.shopRecipeAmountChanged(recipe);
-        },
-        async minusShopButtonPressed(recipe) {
-            recipe.amountShoppingFor = Math.max(
-                0,
-                recipe.amountShoppingFor - 1
-            );
-            await this.shopRecipeAmountChanged(recipe);
-        },
-        async shopInputChanged(recipe, input) {
-            Math.max((recipe.amountShoppingFor = Number(input)), 0);
-            await this.shopRecipeAmountChanged(recipe);
-        },
+        }
     },
 };
 </script>
@@ -337,33 +325,6 @@ export default {
     flex-direction: row;
 }
 
-.shopping-widget-container {
-}
-.shopping-widget-container button {
-    width: 2.3em;
-    height: 2.3em;
-    border-radius: 8px;
-}
-.shopping-cart-button {
-    border: 3px solid #64d564;
-    background-color: #90ff94;
-}
-.shopping-minus-button {
-    border: 3px solid #e20000;
-    background-color: #ff8686;
-}
-.shopping-plus-button {
-    border: 3px solid #64d564;
-    background-color: #90ff94;
-}
-.shopping-widget-container input {
-    max-width: 3em;
-    text-align: center;
-    border: 3px solid;
-    border-left: none;
-    border-right: none;
-    border-radius: 5px;
-}
 
 .author-icon {
     padding: 1em;

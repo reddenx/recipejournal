@@ -45,13 +45,21 @@ export default {
 .layout-footer {
 }
 
+button.trash {
+    width: 2.3em;
+    height: 2.3em;
+    border-radius: 8px;
+    border: 3px solid #e20000;
+    background-color: #ff8686;
+}
+
 @media only screen and (max-width: 800px) {
     .layout-container {
         display: grid;
         grid-template-columns: auto;
         grid-template-rows: auto;
-        margin-left: .25em;
-        margin-right: .25em;
+        margin-left: 0.25em;
+        margin-right: 0.25em;
     }
     .layout-leftbar {
         /* from 160px+ stacks vertically after that*/

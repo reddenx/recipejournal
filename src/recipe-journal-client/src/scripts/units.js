@@ -9,7 +9,9 @@ export default class Units {
                 return amount == 1 ? ' cup' : ' cups';
             case 'gram':
                 return 'g';
+            case 'count':
+                return '';
         }
-        return '';
+        return unit;
     }
 }
