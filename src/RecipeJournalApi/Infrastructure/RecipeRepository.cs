@@ -527,7 +527,7 @@ namespace RecipeJournalApi.Infrastructure
             }).ToArray();
         }
 
-        public Recipe UpdateRecipe(RecipeDto update, UserInfo user)
+        public Recipe UpdateRecipe(RecipeInputDto update, UserInfo user)
         {
             if (update.Id.HasValue)
                 _recipeDB.RemoveAll(r => r.Id == update.Id);
@@ -573,11 +573,6 @@ namespace RecipeJournalApi.Infrastructure
             };
             _recipeDB.Add(updatedRecipe);
             return updatedRecipe;
-        }
-
-        public Recipe UpdateRecipe(RecipeInputDto update, UserInfo user)
-        {
-            throw new NotImplementedException();
         }
 
         private static readonly List<Recipe> _recipeDB = new List<Recipe>()
