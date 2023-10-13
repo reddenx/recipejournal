@@ -11,29 +11,51 @@ namespace RecipeJournalApi.Infrastructure
     {
         Recipe GetRecipe(Guid id);
         RecipeListItem[] GetRecipesForUser(Guid? userId);
-        Recipe UpdateRecipe(RecipeDto update, UserInfo user);
+        Recipe UpdateRecipe(RecipeInputDto update, UserInfo user);
     }
     public class RecipeListItem
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
+        public string Author { get; set; }
         public int? DurationMinutes { get; set; }
         public int? Servings { get; set; }
+        public DateTime DateCreated { get; set; }
+        public DateTime LastModified { get; set; }
+        public int Version { get; set; }
+        public float Rating { get; set; }
+        public string[] Tags { get; set; }
+        public int TotalJournalCount { get; set; }
+        public bool IsPublic { get; set; }
+        public bool IsDraft { get; set; }
+        public LoggedInUserRecipeListItemInfo LoggedInUserInfo { get; set; }
+
+        public class LoggedInUserRecipeListItemInfo
+        {
+            public float? PersonalBest { get; set; }
+            public int JournalCount { get; set; }
+            public DateTime? LatestJournalEntryDate { get; set; }
+            public int GoalCount { get; set; }
+            public int NoteCount { get; set; }
+        }
     }
     public class Recipe
     {
         public Guid Id { get; set; }
+        public string Title { get; set; }
         public string Author { get; set; }
         public Guid AuthorId { get; set; }
-        public int Version { get; set; }
-        public DateTime? DateCreated { get; set; }
-        public DateTime VersionDate { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
         public int? DurationMinutes { get; set; }
         public int? Servings { get; set; }
+        public int Version { get; set; }
+        public DateTime DateCreated { get; set; }
+        public DateTime LastModified { get; set; }
+        public DateTime VersionDate { get; set; }
+        public float Rating { get; set; }
+        public string Description { get; set; }
         public bool IsDraft { get; set; }
         public bool IsPublic { get; set; }
+        public string[] Tags { get; set; }
 
         public RecipeComponent[] Components { get; set; }
 
@@ -174,21 +196,65 @@ namespace RecipeJournalApi.Infrastructure
             from recipe r
                 inner join account a on a.Id = r.AccountId
             where r.Public = 1 or r.AccountId = @Id";
+            var sqlJournal = @"
+            select
+                j.Id,
+                j.RecipeId,
+                j.UserId,
+                j.StickyNext,
+                j.EntryDate,
+                j.NextDismissed,
+                j.SuccessRating
+            from recipe_journal_entry j
+            where j.UserId = @Id";
 
             using (var conn = new MySqlConnection(_connectionString))
             {
                 var recipes = conn.Query<RecipeData>(sqlRecipe, new { Id = userId?.ToString("N") }).ToArray();
-                return recipes.Select(r => new RecipeListItem
+                var journalResult = conn.Query<JournalListData>(sqlJournal, new { Id = userId?.ToString("N") });
+
+                return recipes.Select(r =>
                 {
-                    Id = Guid.Parse(r.Id),
-                    DurationMinutes = r.DurationMinutes,
-                    Servings = r.Servings,
-                    Title = r.Title
+                    var journal = journalResult.Where(j => j.RecipeId == r.Id);
+                    return new RecipeListItem
+                    {
+                        Id = Guid.Parse(r.Id),
+                        DurationMinutes = r.DurationMinutes,
+                        Servings = r.Servings,
+                        Title = r.Title,
+                        Author = r.Username,
+                        DateCreated = r.DateCreated,
+                        IsDraft = !r.Published,
+                        IsPublic = r.Public,
+                        LastModified = r.VersionDate,
+                        Rating = 0,
+                        Tags = new string[] { },
+                        TotalJournalCount = 0,
+                        Version = r.Version,
+                        LoggedInUserInfo = userId.HasValue ? new RecipeListItem.LoggedInUserRecipeListItemInfo
+                        {
+                            GoalCount = 0,
+                            JournalCount = journal.Count(),
+                            LatestJournalEntryDate = journal.MaxBy(j => j.EntryDate)?.EntryDate,
+                            NoteCount = journal.Count(j => j.StickyNext && !j.NextDismissed),
+                            PersonalBest = journal.MaxBy(j => j.SuccessRating)?.SuccessRating
+                        } : null,
+                    };
                 }).ToArray();
             }
         }
+        class JournalListData
+        {
+            public string Id { get; set; }
+            public string RecipeId { get; set; }
+            public string UserId { get; set; }
+            public bool StickyNext { get; set; }
+            public DateTime EntryDate { get; set; }
+            public bool NextDismissed { get; set; }
+            public float SuccessRating { get; set; }
+        }
 
-        public Recipe UpdateRecipe(RecipeDto update, UserInfo user)
+        public Recipe UpdateRecipe(RecipeInputDto update, UserInfo user)
         {
             Guid? recipeId = update.Id;
             using (var conn = new MySqlConnection(_connectionString))
@@ -318,7 +384,7 @@ namespace RecipeJournalApi.Infrastructure
                                 Number = ingredient.Number,
                                 Unit = ingredient.Unit,
                                 Amount = ingredient.Amount,
-                                Description = "", //TODO this is a missing feature right now
+                                Description = ingredient.Description,
                                 Name = ingredient.Name
                             });
                             if (amount == 0)
@@ -339,7 +405,7 @@ namespace RecipeJournalApi.Infrastructure
                                     Number = ingredient.Number,
                                     Unit = ingredient.Unit,
                                     Amount = ingredient.Amount,
-                                    Description = "", //TODO this is a missing feature right now
+                                    Description = ingredient.Description,
                                     Name = ingredient.Name
                                 });
                             }
@@ -367,6 +433,10 @@ namespace RecipeJournalApi.Infrastructure
                 Title = recipe.Title,
                 Version = recipe.Version,
                 VersionDate = recipe.VersionDate,
+                LastModified = recipe.VersionDate,
+                Rating = 0,
+                Tags = new string[] { },
+
                 Components = components.Select(c => new Recipe.RecipeComponent
                 {
                     Id = Guid.Parse(c.Id),
@@ -448,14 +518,37 @@ namespace RecipeJournalApi.Infrastructure
 
         public RecipeListItem[] GetRecipesForUser(Guid? userId)
         {
-            return _recipeDB.Where(r => r.AuthorId == userId || r.IsPublic).Select(r => new RecipeListItem
+            var mockj = new MockJournalRepository();
+            return _recipeDB.Where(r => r.AuthorId == userId || r.IsPublic).Select(r =>
             {
-                Id = r.Id,
-                Title = r.Title
+                var journal = userId.HasValue ? mockj.GetEntriesForRecipe(userId.Value, r.Id) : new RecipeJournalListEntryDto[] { };
+                return new RecipeListItem
+                {
+                    Id = r.Id,
+                    Title = r.Title,
+                    DurationMinutes = r.DurationMinutes,
+                    Servings = r.Servings,
+                    Author = r.Author,
+                    DateCreated = r.DateCreated,
+                    IsDraft = r.IsDraft,
+                    IsPublic = r.IsPublic,
+                    LastModified = r.VersionDate,
+                    Rating = r.Rating,
+                    Tags = r.Tags,
+                    TotalJournalCount = 0,
+                    LoggedInUserInfo = userId.HasValue ? new RecipeListItem.LoggedInUserRecipeListItemInfo
+                    {
+                        GoalCount = 0,
+                        JournalCount = journal.Count(),
+                        LatestJournalEntryDate = journal.MaxBy(j => j.Date)?.Date,
+                        NoteCount = journal.Count(j => j.StickyNext && !j.NextDismissed),
+                        PersonalBest = journal.MaxBy(j => j.SuccessRating)?.SuccessRating
+                    } : null,
+                };
             }).ToArray();
         }
 
-        public Recipe UpdateRecipe(RecipeDto update, UserInfo user)
+        public Recipe UpdateRecipe(RecipeInputDto update, UserInfo user)
         {
             if (update.Id.HasValue)
                 _recipeDB.RemoveAll(r => r.Id == update.Id);

@@ -1,12 +1,16 @@
 import axios from 'axios';
 
 export default class RecipeApi {
+    /**
+     * 
+     * @returns {RecipeListDto[]}
+     */
     async getRecipeList() {
         try {
             let result = await axios.get('/api/v1/recipes');
             if (result.data) {
                 let dto = result.data;
-                return dto.map(r => new RecipeListDto(r.id, r.title, r.durationMinutes, r.servings));
+                return dto.map(r => new RecipeListDto(r.id, r.title, r.author, r.durationMinutes, r.servings, r.dateCreated, r.isDraft, r.isPublic, r.rating, r.tags, r.totalJournalCount, r.version, r.lastModified, r.loggedInInfo?.personalBest, r.loggedInInfo?.personalGoalCount, r.loggedInInfo?.personalJournalCount, r.loggedInInfo?.personalLastJournalDate, r.loggedInInfo?.personalNoteCount));
             }
             return null;
         }
@@ -90,11 +94,26 @@ export class RecipeIngredientDto {
 
 //recipe list item with just description and display metadata
 export class RecipeListDto {
-    constructor(id, title, durationMinutes, servings) {
+    constructor(id, title, author, durationMinutes, servings, dateCreated, isDraft, isPublic, rating, tags, totalJournalCount, version, lastModified, personalBest, personalGoalCount, personalJournalCount, personalLastJournalDate, personalNoteCount) {
         this.id = id;
         this.title = title;
+        this.author = author;
         this.durationMinutes = durationMinutes;
         this.servings = servings;
+        this.dateCreated = new Date(dateCreated);
+        this.isDraft = isDraft;
+        this.isPublic = isPublic;
+        this.rating = rating;
+        this.tags = tags;
+        this.totalJournalCount = totalJournalCount;
+        this.version = version;
+        this.lastModified = lastModified;
+
+        this.personalBest = personalBest;
+        this.personalGoalCount = personalGoalCount;
+        this.personalJournalCount = personalJournalCount;
+        this.personalLastJournalDate = personalLastJournalDate ? new Date(personalLastJournalDate) : null;
+        this.personalNoteCount = personalNoteCount;
     }
 }
 //input for updating a recipe from the cms
