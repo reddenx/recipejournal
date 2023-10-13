@@ -384,7 +384,7 @@ namespace RecipeJournalApi.Infrastructure
                                 Number = ingredient.Number,
                                 Unit = ingredient.Unit,
                                 Amount = ingredient.Amount,
-                                Description = ingredient.Description,
+                                Description = ingredient.Description ?? "",
                                 Name = ingredient.Name
                             });
                             if (amount == 0)
