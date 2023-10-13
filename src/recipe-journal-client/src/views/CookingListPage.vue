@@ -256,11 +256,12 @@ export default {
     padding: 1em;
 }
 
-.draft {
-    background-color: #eee;
-}
+
 .private {
-    background-color: #bbb;
+    background-color: #d8deff;
+}
+.draft {
+    background-color: #fff0d0;
 }
 
 .recipe-list-container div {
