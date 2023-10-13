@@ -73,11 +73,13 @@ namespace RecipeJournalApi.Controllers
         public IStatusCodeActionResult UpdateShoppingList([FromBody] UpdateShoppingListDto dto)
         {
             var user = UserInfo.FromClaimsPrincipal(this.User);
-            var success = _shoppingRepo.UpdateShoppingList(user.Id, dto.RecipeScales.Select(r => new ShoppingRecipeScale
-            {
-                Id = r.Id,
-                Scale = r.Scale
-            }).ToArray(), dto.GatheredIds);
+            var success = _shoppingRepo.UpdateShoppingList(user.Id, dto.RecipeScales
+                .Where(r => r.Scale > 0)
+                .Select(r => new ShoppingRecipeScale
+                {
+                    Id = r.Id,
+                    Scale = r.Scale
+                }).ToArray(), dto.GatheredIds);
             return StatusCode(success ? 204 : 400);
         }
         public class UpdateShoppingListDto
