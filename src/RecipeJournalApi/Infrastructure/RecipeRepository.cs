@@ -32,9 +32,9 @@ namespace RecipeJournalApi.Infrastructure
 
         public class LoggedInUserRecipeListItemInfo
         {
-            public float PersonalBest { get; set; }
+            public float? PersonalBest { get; set; }
             public int JournalCount { get; set; }
-            public DateTime LatestJournalEntryDate { get; set; }
+            public DateTime? LatestJournalEntryDate { get; set; }
             public int GoalCount { get; set; }
             public int NoteCount { get; set; }
         }
@@ -231,13 +231,13 @@ namespace RecipeJournalApi.Infrastructure
                         Tags = new string[] { },
                         TotalJournalCount = 0,
                         Version = r.Version,
-                        LoggedInUserInfo = journal.Any() ? new RecipeListItem.LoggedInUserRecipeListItemInfo
+                        LoggedInUserInfo = userId.HasValue ? new RecipeListItem.LoggedInUserRecipeListItemInfo
                         {
                             GoalCount = 0,
                             JournalCount = journal.Count(),
-                            LatestJournalEntryDate = journal.Max(j => j.EntryDate),
+                            LatestJournalEntryDate = journal.MaxBy(j => j.EntryDate)?.EntryDate,
                             NoteCount = journal.Count(j => j.StickyNext && !j.NextDismissed),
-                            PersonalBest = journal.Max(j => j.SuccessRating)
+                            PersonalBest = journal.MaxBy(j => j.SuccessRating)?.SuccessRating
                         } : null,
                     };
                 }).ToArray();
@@ -518,12 +518,33 @@ namespace RecipeJournalApi.Infrastructure
 
         public RecipeListItem[] GetRecipesForUser(Guid? userId)
         {
-            return _recipeDB.Where(r => r.AuthorId == userId || r.IsPublic).Select(r => new RecipeListItem
+            var mockj = new MockJournalRepository();
+            return _recipeDB.Where(r => r.AuthorId == userId || r.IsPublic).Select(r =>
             {
-                Id = r.Id,
-                Title = r.Title,
-                DurationMinutes = r.DurationMinutes,
-                Servings = r.Servings
+                var journal = userId.HasValue ? mockj.GetEntriesForRecipe(userId.Value, r.Id) : new RecipeJournalListEntryDto[] { };
+                return new RecipeListItem
+                {
+                    Id = r.Id,
+                    Title = r.Title,
+                    DurationMinutes = r.DurationMinutes,
+                    Servings = r.Servings,
+                    Author = r.Author,
+                    DateCreated = r.DateCreated,
+                    IsDraft = r.IsDraft,
+                    IsPublic = r.IsPublic,
+                    LastModified = r.VersionDate,
+                    Rating = r.Rating,
+                    Tags = r.Tags,
+                    TotalJournalCount = 0,
+                    LoggedInUserInfo = userId.HasValue ? new RecipeListItem.LoggedInUserRecipeListItemInfo
+                    {
+                        GoalCount = 0,
+                        JournalCount = journal.Count(),
+                        LatestJournalEntryDate = journal.MaxBy(j => j.Date)?.Date,
+                        NoteCount = journal.Count(j => j.StickyNext && !j.NextDismissed),
+                        PersonalBest = journal.MaxBy(j => j.SuccessRating)?.SuccessRating
+                    } : null,
+                };
             }).ToArray();
         }
 

@@ -44,10 +44,10 @@ namespace RecipeJournalApi.Controllers
                 isDraft: r.IsDraft,
                 isLoggedIn: user != null,
                 personalBest: r.LoggedInUserInfo?.PersonalBest,
-                personalJournalCount: r.LoggedInUserInfo?.JournalCount,
-                personalGoalCount: r.LoggedInUserInfo?.GoalCount,
+                personalJournalCount: r.LoggedInUserInfo?.JournalCount ?? 0,
+                personalGoalCount: r.LoggedInUserInfo?.GoalCount ?? 0,
                 personalLastJournalDate: r.LoggedInUserInfo?.LatestJournalEntryDate,
-                personalNoteCount: r.LoggedInUserInfo?.NoteCount
+                personalNoteCount: r.LoggedInUserInfo?.NoteCount ?? 0
             )).ToArray();
             
             
@@ -81,13 +81,13 @@ namespace RecipeJournalApi.Controllers
             public class LoggedInInfoDto
             {
                 public float? PersonalBest { get; set; }
-                public int? PersonalJournalCount { get; set; }
+                public int PersonalJournalCount { get; set; }
                 public DateTime? PersonalLastJournalDate { get; set; }
-                public int? PersonalGoalCount { get; set; }
-                public int? PersonalNoteCount { get; set; }
+                public int PersonalGoalCount { get; set; }
+                public int PersonalNoteCount { get; set; }
             }
 
-            public static RecipeListItemDto FromService(Guid id, string title, int? durationMinutes, int? servings, float rating, string[] tags, int totalJournalCount, DateTime dateCreated, string author, int version, DateTime lastModified, bool isPublic, bool isDraft, bool isLoggedIn, float? personalBest, int? personalJournalCount, DateTime? personalLastJournalDate, int? personalGoalCount, int? personalNoteCount)
+            public static RecipeListItemDto FromService(Guid id, string title, int? durationMinutes, int? servings, float rating, string[] tags, int totalJournalCount, DateTime dateCreated, string author, int version, DateTime lastModified, bool isPublic, bool isDraft, bool isLoggedIn, float? personalBest, int personalJournalCount, DateTime? personalLastJournalDate, int personalGoalCount, int personalNoteCount)
             {
                 return new RecipeListItemDto
                 {
