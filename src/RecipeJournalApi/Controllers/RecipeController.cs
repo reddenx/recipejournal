@@ -27,6 +27,7 @@ namespace RecipeJournalApi.Controllers
         {
             var user = UserInfo.FromClaimsPrincipal(this.User);
             var recipes = _recipeRepo.GetRecipesForUser(user?.Id);
+
             return recipes.Select(r => new RecipeListItemDto
             {
                 Id = r.Id,
@@ -41,6 +42,54 @@ namespace RecipeJournalApi.Controllers
             public string Title { get; set; }
             public int? DurationMinutes { get; set; }
             public int? Servings { get; set; }
+
+            public float Rating { get; set; }
+            public string[] Tags { get; set; }
+            public int TotalJournalCount { get; set; }
+            public DateTime DateCreated { get; set; }
+            public string Author { get; set; }
+            public int Version { get; set; }
+            public DateTime LastModified { get; set; }
+            public bool IsPublic { get; set; }
+            public bool IsDraft { get; set; }
+            public LoggedInInfoDto LoggedInInfo { get; set; }
+
+            public class LoggedInInfoDto
+            {
+                public float? PersonalBest { get; set; }
+                public int? PersonalJournalCount { get; set; }
+                public DateTime? PersonalLastJournalDate { get; set; }
+                public int? PersonalGoalCount { get; set; }
+                public int? PersonalNoteCount { get; set; }
+            }
+
+            public RecipeListItemDto FromService(Guid id, string title, int? durationMinutes, int? servings, float rating, string[] tags, int totalJournalCount, DateTime dateCreated, string author, int version, DateTime lastModified, bool isPublic, bool isDraft, bool isLoggedIn, float? personalBest, int? personalJournalCount, DateTime? personalLastJournalDate, int? personalGoalCount, int? personalNoteCount)
+            {
+                return new RecipeListItemDto
+                {
+                    Id = id,
+                    Title = title,
+                    DurationMinutes = durationMinutes,
+                    Servings = servings,
+                    Rating = rating,
+                    Tags = tags,
+                    TotalJournalCount = totalJournalCount,
+                    DateCreated = dateCreated,
+                    Author = author,
+                    Version = version,
+                    LastModified = lastModified,
+                    IsPublic = isPublic,
+                    IsDraft = isDraft,
+                    LoggedInInfo = isLoggedIn ? new LoggedInInfoDto
+                    {
+                        PersonalBest = personalBest,
+                        PersonalJournalCount = personalJournalCount,
+                        PersonalLastJournalDate = personalLastJournalDate,
+                        PersonalGoalCount = personalGoalCount,
+                        PersonalNoteCount = personalNoteCount,
+                    } : null,
+                };
+            }
         }
 
         [HttpGet("{id}")]
@@ -100,6 +149,23 @@ namespace RecipeJournalApi.Controllers
             public bool IsPublic { get; set; }
             public RecipeComponentDto[] Components { get; set; }
 
+            public float Rating { get; set; }
+            public string[] Tags { get; set; }
+            public int TotalJournalCount { get; set; }
+            public DateTime DateCreated { get; set; }
+            public DateTime LastModified { get; set; }
+            public int Version { get; set; }
+            public LoggedInInfoDto LoggedInInfo { get; set; }
+
+            public class LoggedInInfoDto
+            {
+                public float? PersonalBest { get; set; }
+                public int? PersonalJournalCount { get; set; }
+                public DateTime? PersonalLastJournalDate { get; set; }
+                public int? PersonalGoalCount { get; set; }
+                public int? PersonalNoteCount { get; set; }
+            }
+
             public class RecipeComponentDto
             {
                 public Guid? Id { get; set; }
@@ -123,17 +189,29 @@ namespace RecipeJournalApi.Controllers
                 public string Name { get; set; }
                 public string Unit { get; set; }
                 public float Amount { get; set; }
+                public string Description { get; set; }
             }
         }
 
         [Authorize]
         [HttpPut("")]
-        public ActionResult<RecipeDto> UpdateRecipe(RecipeDto recipeDto)
+        public ActionResult<RecipeDto> UpdateRecipe(RecipeInputDto recipeDto)
         {
             var user = UserInfo.FromClaimsPrincipal(this.User);
             var updated = _recipeRepo.UpdateRecipe(recipeDto, user);
             var dto = RecipeDto.FromDataType(updated);
             return dto;
+        }
+        public class RecipeInputDto
+        {
+            public Guid? Id { get; set; }
+            public string Title { get; set; }
+            public string Description { get; set; }
+            public int? DurationMinutes { get; set; }
+            public int? Servings { get; set; }
+            public bool IsDraft { get; set; }
+            public bool IsPublic { get; set; }
+            public RecipeDto.RecipeComponentDto[] Components { get; set; }
         }
 
         [Authorize]

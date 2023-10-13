@@ -17,15 +17,20 @@
                             }}</router-link>
                         </div>
                         <div class="duration" v-show="recipe.duration">
-                            {{ recipe.durationMinutes }} minutes
+                            <span class="fa-solid fa-clock"></span>
+                            {{ recipe.duration }} minutes
                         </div>
                         <div class="servings" v-show="recipe.servings">
+                            <span class="fa-solid fa-utensils"></span>
                             {{ recipe.servings }} servings
                         </div>
                         <!-- <div class="tag">baking</div> -->
                     </div>
                     <div class="recipe-list-item-bottom grid-r">
-                        <div class="rating-container" v-if="typeof recipe.rating == 'number'">
+                        <div
+                            class="rating-container"
+                            v-if="typeof recipe.rating == 'number'"
+                        >
                             <span
                                 class="fa-star"
                                 :class="{
@@ -63,18 +68,29 @@
                             ></span>
                             ({{ recipe.ratingCount }})
                         </div>
-                        <div class="success-bar-container" v-if="recipe.mySuccess">
+                        <div
+                            class="success-bar-container"
+                            v-if="recipe.mySuccess"
+                        >
                             <div
                                 class="success-bar"
                                 :style="{ width: recipe.mySuccess * 100 + '%' }"
                             ></div>
                         </div>
-                        <router-link class="last-cooked-date" :to="'/journal/' + recipe.id">
+                        <router-link
+                            class="last-cooked-date"
+                            :to="'/journal/' + recipe.id"
+                        >
                             <span class="fa-solid fa-book"></span>
-                            <span v-if="recipe.myAttemptCount">({{ recipe.myAttemptCount }}){{ recipe.dateLastAttempted.toLocaleDateString() }}</span>
+                            <span v-if="recipe.myAttemptCount"
+                                >({{ recipe.myAttemptCount }}){{
+                                    recipe.dateLastAttempted.toLocaleDateString()
+                                }}</span
+                            >
                         </router-link>
                         <div v-if="recipe.goalCount">
-                            <span class="fa-regular fa-lightbulb"></span> {{ recipe.goalCount }}
+                            <span class="fa-regular fa-lightbulb"></span>
+                            {{ recipe.goalCount }}
                         </div>
                     </div>
                     <div class="recipe-list-item-right">
@@ -85,7 +101,10 @@
                         >
                             <span class="fa-solid fa-pen-to-square"></span>
                         </button>
-                        <ShoppingWidget v-model="recipe.amountShoppingFor" @input="shopRecipeAmountChanged(recipe, $event)" />
+                        <ShoppingWidget
+                            v-model="recipe.amountShoppingFor"
+                            @input="shopRecipeAmountChanged(recipe, $event)"
+                        />
                         <!-- <div class="shopping-widget-container">
                             <button
                                 class="shopping-cart-button"
@@ -287,7 +306,7 @@ export default {
             );
             this.shoppingRecipeIds = list.recipes.map((r) => r.id);
             this.shoppingRecipeIds.push(recipe.id);
-        }
+        },
     },
 };
 </script>
@@ -324,7 +343,6 @@ export default {
     align-items: center;
     flex-direction: row;
 }
-
 
 .author-icon {
     padding: 1em;

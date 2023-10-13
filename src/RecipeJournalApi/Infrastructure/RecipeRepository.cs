@@ -11,27 +11,46 @@ namespace RecipeJournalApi.Infrastructure
     {
         Recipe GetRecipe(Guid id);
         RecipeListItem[] GetRecipesForUser(Guid? userId);
-        Recipe UpdateRecipe(RecipeDto update, UserInfo user);
+        Recipe UpdateRecipe(RecipeInputDto update, UserInfo user);
     }
     public class RecipeListItem
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
+        public string Author { get; set; }
         public int? DurationMinutes { get; set; }
         public int? Servings { get; set; }
+        public DateTime DateCreated { get; set; }
+        public DateTime LastModified { get; set; }
+        public int Version { get; set; }
+        public float Rating { get; set; }
+        public string[] Tags { get; set; }
+        public int TotalJournalCount { get; set; }
+        public bool IsPublic { get; set; }
+        public bool IsDraft { get; set; }
+        public LoggedInUserRecipeListItemInfo LoggedInUserInfo { get; set; }
+
+        public class LoggedInUserRecipeListItemInfo
+        {
+            public float PersonalBest { get; set; }
+            public int JournalCount { get; set; }
+            public DateTime LatestJournalEntry { get; set; }
+            public int GoalCount { get; set; }
+            public int NoteCount { get; set; }
+        }
     }
     public class Recipe
     {
         public Guid Id { get; set; }
+        public string Title { get; set; }
         public string Author { get; set; }
         public Guid AuthorId { get; set; }
-        public int Version { get; set; }
-        public DateTime? DateCreated { get; set; }
-        public DateTime VersionDate { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
         public int? DurationMinutes { get; set; }
         public int? Servings { get; set; }
+        public int Version { get; set; }
+        public DateTime DateCreated { get; set; }
+        public DateTime VersionDate { get; set; }
+        public string Description { get; set; }
         public bool IsDraft { get; set; }
         public bool IsPublic { get; set; }
 
@@ -188,7 +207,7 @@ namespace RecipeJournalApi.Infrastructure
             }
         }
 
-        public Recipe UpdateRecipe(RecipeDto update, UserInfo user)
+        public Recipe UpdateRecipe(RecipeInputDto update, UserInfo user)
         {
             Guid? recipeId = update.Id;
             using (var conn = new MySqlConnection(_connectionString))
@@ -318,7 +337,7 @@ namespace RecipeJournalApi.Infrastructure
                                 Number = ingredient.Number,
                                 Unit = ingredient.Unit,
                                 Amount = ingredient.Amount,
-                                Description = "", //TODO this is a missing feature right now
+                                Description = ingredient.Description,
                                 Name = ingredient.Name
                             });
                             if (amount == 0)
@@ -339,7 +358,7 @@ namespace RecipeJournalApi.Infrastructure
                                     Number = ingredient.Number,
                                     Unit = ingredient.Unit,
                                     Amount = ingredient.Amount,
-                                    Description = "", //TODO this is a missing feature right now
+                                    Description = ingredient.Description,
                                     Name = ingredient.Name
                                 });
                             }
@@ -451,7 +470,9 @@ namespace RecipeJournalApi.Infrastructure
             return _recipeDB.Where(r => r.AuthorId == userId || r.IsPublic).Select(r => new RecipeListItem
             {
                 Id = r.Id,
-                Title = r.Title
+                Title = r.Title,
+                DurationMinutes = r.DurationMinutes,
+                Servings = r.Servings
             }).ToArray();
         }
 
