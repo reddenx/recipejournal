@@ -34,7 +34,7 @@ namespace RecipeJournalApi.Infrastructure
         {
             public float PersonalBest { get; set; }
             public int JournalCount { get; set; }
-            public DateTime LatestJournalEntry { get; set; }
+            public DateTime LatestJournalEntryDate { get; set; }
             public int GoalCount { get; set; }
             public int NoteCount { get; set; }
         }
@@ -49,10 +49,13 @@ namespace RecipeJournalApi.Infrastructure
         public int? Servings { get; set; }
         public int Version { get; set; }
         public DateTime DateCreated { get; set; }
+        public DateTime LastModified { get; set; }
         public DateTime VersionDate { get; set; }
+        public float Rating { get; set; }
         public string Description { get; set; }
         public bool IsDraft { get; set; }
         public bool IsPublic { get; set; }
+        public string[] Tags { get; set; }
 
         public RecipeComponent[] Components { get; set; }
 
@@ -193,18 +196,62 @@ namespace RecipeJournalApi.Infrastructure
             from recipe r
                 inner join account a on a.Id = r.AccountId
             where r.Public = 1 or r.AccountId = @Id";
+            var sqlJournal = @"
+            select
+                j.Id,
+                j.RecipeId,
+                j.UserId,
+                j.StickyNext,
+                j.EntryDate,
+                j.NextDismissed,
+                j.SuccessRating
+            from recipe_journal_entry j
+            where j.UserId = @Id";
 
             using (var conn = new MySqlConnection(_connectionString))
             {
                 var recipes = conn.Query<RecipeData>(sqlRecipe, new { Id = userId?.ToString("N") }).ToArray();
-                return recipes.Select(r => new RecipeListItem
+                var journalResult = conn.Query<JournalListData>(sqlJournal, new { Id = userId?.ToString("N") });
+
+                return recipes.Select(r =>
                 {
-                    Id = Guid.Parse(r.Id),
-                    DurationMinutes = r.DurationMinutes,
-                    Servings = r.Servings,
-                    Title = r.Title
+                    var journal = journalResult.Where(j => j.RecipeId == r.Id);
+                    return new RecipeListItem
+                    {
+                        Id = Guid.Parse(r.Id),
+                        DurationMinutes = r.DurationMinutes,
+                        Servings = r.Servings,
+                        Title = r.Title,
+                        Author = r.Username,
+                        DateCreated = r.DateCreated,
+                        IsDraft = !r.Published,
+                        IsPublic = r.Public,
+                        LastModified = r.VersionDate,
+                        Rating = 0,
+                        Tags = new string[] { },
+                        TotalJournalCount = 0,
+                        Version = r.Version,
+                        LoggedInUserInfo = journal.Any() ? new RecipeListItem.LoggedInUserRecipeListItemInfo
+                        {
+                            GoalCount = 0,
+                            JournalCount = journal.Count(),
+                            LatestJournalEntryDate = journal.Max(j => j.EntryDate),
+                            NoteCount = journal.Count(j => j.StickyNext && !j.NextDismissed),
+                            PersonalBest = journal.Max(j => j.SuccessRating)
+                        } : null,
+                    };
                 }).ToArray();
             }
+        }
+        class JournalListData
+        {
+            public string Id { get; set; }
+            public string RecipeId { get; set; }
+            public string UserId { get; set; }
+            public bool StickyNext { get; set; }
+            public DateTime EntryDate { get; set; }
+            public bool NextDismissed { get; set; }
+            public float SuccessRating { get; set; }
         }
 
         public Recipe UpdateRecipe(RecipeInputDto update, UserInfo user)
@@ -386,6 +433,10 @@ namespace RecipeJournalApi.Infrastructure
                 Title = recipe.Title,
                 Version = recipe.Version,
                 VersionDate = recipe.VersionDate,
+                LastModified = recipe.VersionDate,
+                Rating = 0,
+                Tags = new string[] { },
+
                 Components = components.Select(c => new Recipe.RecipeComponent
                 {
                     Id = Guid.Parse(c.Id),
@@ -522,6 +573,11 @@ namespace RecipeJournalApi.Infrastructure
             };
             _recipeDB.Add(updatedRecipe);
             return updatedRecipe;
+        }
+
+        public Recipe UpdateRecipe(RecipeInputDto update, UserInfo user)
+        {
+            throw new NotImplementedException();
         }
 
         private static readonly List<Recipe> _recipeDB = new List<Recipe>()

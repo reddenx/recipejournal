@@ -28,13 +28,37 @@ namespace RecipeJournalApi.Controllers
             var user = UserInfo.FromClaimsPrincipal(this.User);
             var recipes = _recipeRepo.GetRecipesForUser(user?.Id);
 
-            return recipes.Select(r => new RecipeListItemDto
-            {
-                Id = r.Id,
-                DurationMinutes = r.DurationMinutes,
-                Servings = r.Servings,
-                Title = r.Title
-            }).ToArray();
+            return recipes.Select(r => RecipeListItemDto.FromService(
+                id: r.Id,
+                title: r.Title,
+                durationMinutes: r.DurationMinutes,
+                servings: r.Servings,
+                rating: r.Rating,
+                tags: r.Tags,
+                totalJournalCount: 0,//todo, this is a terrible shim
+                dateCreated: r.DateCreated,
+                author: r.Author,
+                version: r.Version,
+                lastModified: r.LastModified,
+                isPublic: r.IsPublic,
+                isDraft: r.IsDraft,
+                isLoggedIn: user != null,
+                personalBest: r.LoggedInUserInfo?.PersonalBest,
+                personalJournalCount: r.LoggedInUserInfo?.JournalCount,
+                personalGoalCount: r.LoggedInUserInfo?.GoalCount,
+                personalLastJournalDate: r.LoggedInUserInfo?.LatestJournalEntryDate,
+                personalNoteCount: r.LoggedInUserInfo?.NoteCount
+            )).ToArray();
+            
+            
+            
+            // new RecipeListItemDto
+            // {
+            //     Id = r.Id,
+            //     DurationMinutes = r.DurationMinutes,
+            //     Servings = r.Servings,
+            //     Title = r.Title
+            // }).ToArray();
         }
         public class RecipeListItemDto
         {
@@ -63,7 +87,7 @@ namespace RecipeJournalApi.Controllers
                 public int? PersonalNoteCount { get; set; }
             }
 
-            public RecipeListItemDto FromService(Guid id, string title, int? durationMinutes, int? servings, float rating, string[] tags, int totalJournalCount, DateTime dateCreated, string author, int version, DateTime lastModified, bool isPublic, bool isDraft, bool isLoggedIn, float? personalBest, int? personalJournalCount, DateTime? personalLastJournalDate, int? personalGoalCount, int? personalNoteCount)
+            public static RecipeListItemDto FromService(Guid id, string title, int? durationMinutes, int? servings, float rating, string[] tags, int totalJournalCount, DateTime dateCreated, string author, int version, DateTime lastModified, bool isPublic, bool isDraft, bool isLoggedIn, float? personalBest, int? personalJournalCount, DateTime? personalLastJournalDate, int? personalGoalCount, int? personalNoteCount)
             {
                 return new RecipeListItemDto
                 {
@@ -98,11 +122,27 @@ namespace RecipeJournalApi.Controllers
             var recipe = _recipeRepo.GetRecipe(id);
             if (recipe == null)
                 return StatusCode(404);
-            return RecipeDto.FromDataType(recipe);
+            RecipeDto.LoggedInInfoDto userRecipeInfo = null;
+            var user = UserInfo.FromClaimsPrincipal(this.User);
+            if (user != null)
+            {
+                var journal = _journalRepository.GetEntriesForRecipe(user.Id, id);
+                //var goals = _goalsRepository.GetGoals(user.Id);
+
+                userRecipeInfo = new RecipeDto.LoggedInInfoDto
+                {
+                    PersonalBest = journal.MaxBy(j => j.SuccessRating)?.SuccessRating,
+                    PersonalGoalCount = 0,//goals.Length,
+                    PersonalJournalCount = journal.Length,
+                    PersonalLastJournalDate = journal.MaxBy(j => j.Date)?.Date,
+                    PersonalNoteCount = journal.Count(j => j.StickyNext && !j.NextDismissed),
+                };
+            }
+            return RecipeDto.FromDataType(recipe, userRecipeInfo);
         }
         public class RecipeDto
         {
-            public static RecipeDto FromDataType(Recipe recipe)
+            public static RecipeDto FromDataType(Recipe recipe, LoggedInInfoDto userStuff)
             {
                 return new RecipeDto
                 {
@@ -114,6 +154,21 @@ namespace RecipeJournalApi.Controllers
                     IsDraft = recipe.IsDraft,
                     IsPublic = recipe.IsPublic,
                     Servings = recipe.Servings,
+                    DateCreated = recipe.DateCreated,
+                    LastModified = recipe.LastModified,
+                    Rating = recipe.Rating,
+                    Tags = recipe.Tags,
+                    Version = recipe.Version,
+
+                    LoggedInInfo = userStuff == null ? null : new LoggedInInfoDto
+                    {
+                        PersonalBest = userStuff.PersonalBest,
+                        PersonalGoalCount = userStuff.PersonalGoalCount,
+                        PersonalJournalCount = userStuff.PersonalJournalCount,
+                        PersonalLastJournalDate = userStuff.PersonalLastJournalDate,
+                        PersonalNoteCount = userStuff.PersonalNoteCount,
+                    },
+
                     Components = recipe.Components.OrderBy(c => c.Number).Select(c => new RecipeDto.RecipeComponentDto
                     {
                         Id = c.Id,
@@ -151,7 +206,6 @@ namespace RecipeJournalApi.Controllers
 
             public float Rating { get; set; }
             public string[] Tags { get; set; }
-            public int TotalJournalCount { get; set; }
             public DateTime DateCreated { get; set; }
             public DateTime LastModified { get; set; }
             public int Version { get; set; }
@@ -160,10 +214,10 @@ namespace RecipeJournalApi.Controllers
             public class LoggedInInfoDto
             {
                 public float? PersonalBest { get; set; }
-                public int? PersonalJournalCount { get; set; }
+                public int PersonalJournalCount { get; set; }
                 public DateTime? PersonalLastJournalDate { get; set; }
-                public int? PersonalGoalCount { get; set; }
-                public int? PersonalNoteCount { get; set; }
+                public int PersonalGoalCount { get; set; }
+                public int PersonalNoteCount { get; set; }
             }
 
             public class RecipeComponentDto
@@ -199,7 +253,7 @@ namespace RecipeJournalApi.Controllers
         {
             var user = UserInfo.FromClaimsPrincipal(this.User);
             var updated = _recipeRepo.UpdateRecipe(recipeDto, user);
-            var dto = RecipeDto.FromDataType(updated);
+            var dto = RecipeDto.FromDataType(updated, null);
             return dto;
         }
         public class RecipeInputDto
