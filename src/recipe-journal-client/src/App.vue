@@ -1,6 +1,8 @@
 <template>
     <div id="app">
-        <navigation-bar />
+        <div class="layout-nav">
+            <navigation-bar />
+        </div>
         <router-view />
     </div>
 </template>
@@ -17,7 +19,62 @@ export default {
 </script>
 
 <style>
-</style>
+.layout-container {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+}
+.layout-leftbar {
+    /* from 160px+ stacks vertically after that*/
+    grid-column-start: 1;
+    grid-row-start: 1;
+}
+.layout-rightbar {
+    /* from 160px+ stacks vertically after that*/
+    grid-column-start: 3;
+    grid-row-start: 1;
+}
+.layout-body {
+    min-width: 40rem;
+    grid-column-start: 2;
+    grid-row-start: 1;
+}
+.layout-nav {
+    /*  */
+    text-align: center;
+}
+.layout-footer {
+}
 
-<style>
+button.trash {
+    width: 2.3em;
+    height: 2.3em;
+    border-radius: 8px;
+    border: 3px solid #e20000;
+    background-color: #ff8686;
+}
+
+@media only screen and (max-width: 800px) {
+    .layout-container {
+        display: grid;
+        grid-template-columns: auto;
+        grid-template-rows: auto;
+        margin-left: 0.25em;
+        margin-right: 0.25em;
+    }
+    .layout-leftbar {
+        /* from 160px+ stacks vertically after that*/
+        grid-column-start: 1;
+        grid-row-start: 1;
+    }
+    .layout-rightbar {
+        /* from 160px+ stacks vertically after that*/
+        grid-column-start: 1;
+        grid-row-start: 2;
+    }
+    .layout-body {
+        min-width: inherit;
+        grid-column-start: 1;
+        grid-row-start: 3;
+    }
+}
 </style>
