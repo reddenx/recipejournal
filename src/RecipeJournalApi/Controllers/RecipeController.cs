@@ -76,9 +76,9 @@ namespace RecipeJournalApi.Controllers
             public DateTime LastModified { get; set; }
             public bool IsPublic { get; set; }
             public bool IsDraft { get; set; }
-            public LoggedInInfoDto LoggedInInfo { get; set; }
+            public LoggedInItemInfoDto LoggedInInfo { get; set; }
 
-            public class LoggedInInfoDto
+            public class LoggedInItemInfoDto
             {
                 public float? PersonalBest { get; set; }
                 public int PersonalJournalCount { get; set; }
@@ -104,7 +104,7 @@ namespace RecipeJournalApi.Controllers
                     LastModified = lastModified,
                     IsPublic = isPublic,
                     IsDraft = isDraft,
-                    LoggedInInfo = isLoggedIn ? new LoggedInInfoDto
+                    LoggedInInfo = isLoggedIn ? new LoggedInItemInfoDto
                     {
                         PersonalBest = personalBest,
                         PersonalJournalCount = personalJournalCount,
