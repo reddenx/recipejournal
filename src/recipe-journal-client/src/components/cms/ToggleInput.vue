@@ -26,10 +26,15 @@ export default {
 .component-container {
     display: inline-block;
 }
-.enabled::before {
-    content: 'Y';
+
+
+.disabled,.enabled {
+    height: 2.3em;
+    border-radius: 8px;
+    border: 3px solid #ffffff;
+    background-color: #00aeff;
+    font-weight: bold;
+    color: white;
 }
-.disabled::before {
-    content: 'N';
-}
+
 </style>

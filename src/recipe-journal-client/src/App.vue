@@ -52,6 +52,23 @@ button.trash {
     border: 3px solid #e20000;
     background-color: #ff8686;
 }
+button.edit {
+    width: 2.3em;
+    height: 2.3em;
+    border-radius: 8px;
+    border: 3px solid rgb(73, 196, 69);
+    background-color: rgb(66, 230, 107);
+}
+button.save-button {
+    width: 2.3em;
+    height: 2.3em;
+    border-radius: 8px;
+    border: 3px solid rgb(45, 97, 175);
+    background-color: rgb(103 165 255);
+}
+a.value {
+    cursor: pointer;
+}
 
 @media only screen and (max-width: 800px) {
     .layout-container {

@@ -14,7 +14,7 @@
         :placeholder="label"
       />
       <button class="save-button" type="button" @click="isEditing = false">
-        C
+        <i class="fa-regular fa-floppy-disk"></i>
       </button>
     </div>
   </div>

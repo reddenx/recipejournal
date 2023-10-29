@@ -11,7 +11,9 @@
         :placeholder="label"
         :style="{width: length + 'em'}"
       />
-      <button class="edit-button" type="button" @click="isEditing = false">C</button>
+      <button class="save-button" type="button" @click="isEditing = false">
+        <i class="fa-regular fa-floppy-disk"></i>
+      </button>
     </div>
   </div>
 </template>
