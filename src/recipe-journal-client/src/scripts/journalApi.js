@@ -112,7 +112,7 @@ export class JournalEntryDto {
         this.recipeId = recipeId;
         this.recipeScale = recipeScale;
         this.successRating = successRating;
-        this.date = new Date(date);
+        this.date = date == null ? null : new Date(date);
         this.attemptNotes = attemptNotes;
         this.resultNotes = resultNotes;
         this.generalNotes = generalNotes;
@@ -137,7 +137,7 @@ export class JournalEntryListDto {
         this.recipeId = recipeId;
         this.recipeScale = recipeScale;
         this.successRating = successRating;
-        this.date = new Date(date);
+        this.date = date == null ? null : new Date(date);
         this.stickyNext = stickyNext;
         this.nextDismissed = nextDismissed;
     }
