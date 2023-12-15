@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Logging;
 using RecipeJournalApi.Infrastructure;
+using SMT.Utilities.Logging;
 
 namespace RecipeJournalApi.Controllers
 {
@@ -19,10 +20,12 @@ namespace RecipeJournalApi.Controllers
     public class ShoppingController : Controller
     {
         private readonly IShoppingRepository _shoppingRepo;
+        private readonly ITraceLogger _logger;
 
-        public ShoppingController(IShoppingRepository shoppingRepo)
+        public ShoppingController(IShoppingRepository shoppingRepo, ITraceLogger logger)
         {
             _shoppingRepo = shoppingRepo;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -80,7 +83,13 @@ namespace RecipeJournalApi.Controllers
                     Id = r.Id,
                     Scale = r.Scale
                 }).ToArray(), dto.GatheredIds);
-            return StatusCode(success ? 204 : 400);
+            
+            if(!success)
+            {
+                _logger.Error("failed to update shopping list", dto, user?.Username);
+                return StatusCode(400);
+            }
+            return StatusCode(204);
         }
         public class UpdateShoppingListDto
         {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Dapper;
 using MySql.Data.MySqlClient;
+using SMT.Utilities.Logging;
 using static RecipeJournalApi.Controllers.RecipeController;
 
 namespace RecipeJournalApi.Infrastructure
@@ -98,10 +99,12 @@ namespace RecipeJournalApi.Infrastructure
     public class RecipeRepository : IRecipeRepository
     {
         private readonly string _connectionString;
+        private readonly ITraceLogger _logger;
 
-        public RecipeRepository(IDbConfig config)
+        public RecipeRepository(IDbConfig config, ITraceLogger logger)
         {
             _connectionString = config.ConnectionString;
+            _logger = logger;
         }
 
         public Recipe GetRecipe(Guid id)

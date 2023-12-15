@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SMT.Utilities.Logging;
 
 namespace RecipeJournalApi.Controllers
 {
@@ -7,9 +8,9 @@ namespace RecipeJournalApi.Controllers
     [Route("/")]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ITraceLogger _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ITraceLogger logger)
         {
             _logger = logger;
         }
@@ -17,6 +18,7 @@ namespace RecipeJournalApi.Controllers
         [HttpGet("/{page?}/{id?}")]
         public IActionResult Index(string page, string id) 
         {
+            _logger.Debug("home page accessed", $"page: {page}", $"id: {id}");
             return File("index.html", "text/html");
         }
     }

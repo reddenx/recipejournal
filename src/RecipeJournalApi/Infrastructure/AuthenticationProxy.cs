@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using SMT.Utilities.Logging;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace RecipeJournalApi.Infrastructure
@@ -24,12 +25,14 @@ namespace RecipeJournalApi.Infrastructure
         private readonly string _accountServerUrl;
         private readonly string _integrationName;
         private IHttpClientFactory _clientFactory;
+        private readonly ITraceLogger _logger;
 
-        public AuthenticationProxy(IAuthenticationProxyConfiguration config, IHttpClientFactory clientFactory)
+        public AuthenticationProxy(IAuthenticationProxyConfiguration config, IHttpClientFactory clientFactory, ITraceLogger logger)
         {
             _accountServerUrl = config.AccountServerUrl;
             _integrationName = config.AccountIntegrationName;
             _clientFactory = clientFactory;
+            _logger = logger;
         }
 
         public async Task<bool> AuthenticateAccount(Guid accountId, string secret)
@@ -48,10 +51,12 @@ namespace RecipeJournalApi.Infrastructure
                 {
                     Content = new StringContent(JsonSerializer.Serialize(authDto), Encoding.UTF8, Application.Json)
                 });
+                _logger.Debug("auth request result", response.StatusCode);
                 return response.IsSuccessStatusCode;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Error("failure authenticating account", e, $"accountid: {accountId}");
                 return false;
             }
         }
