@@ -50,11 +50,12 @@ namespace RecipeJournalApi.Controllers
             public string Secret {get;set;}
         }
 
+        [AllowAnonymous]
         [HttpPost("")]
         public IActionResult CreateUser([FromBody] CreateUserDto input)
         {
             _logger.Error("attempted to create user, this endpoint is disabled", input.Username);
-            throw new NotImplementedException();
+            return StatusCode(401, "you are not authorized to use this endpoint");
         }
 
         public class LoginDto
