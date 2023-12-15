@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Dapper;
 using MySql.Data.MySqlClient;
+using SMT.Utilities.Logging;
 using static RecipeJournalApi.Controllers.RecipeController; //yeah yeah should make my own type, still prototyping
 
 namespace RecipeJournalApi.Infrastructure
@@ -17,10 +18,12 @@ namespace RecipeJournalApi.Infrastructure
     public class JournalRepository : IJournalRepository
     {
         private readonly string _connectionString;
+        private readonly ITraceLogger _logger;
 
-        public JournalRepository(IDbConfig config)
+        public JournalRepository(IDbConfig config, ITraceLogger logger)
         {
             _connectionString = config.ConnectionString;
+            _logger = logger;
         }
 
         public RecipeJournalListEntryDto[] GetEntriesForRecipe(Guid userId, Guid recipeId)
@@ -44,6 +47,8 @@ namespace RecipeJournalApi.Infrastructure
                     UserId = userId.ToString("N"),
                     RecipeId = recipeId.ToString("N")
                 });
+
+                _logger.Debug("got journal entries for recipe", results.Count());
 
                 return results.Select(r => new RecipeJournalListEntryDto
                 {
@@ -93,7 +98,10 @@ namespace RecipeJournalApi.Infrastructure
             }).FirstOrDefault();
 
             if (result == null)
+            {
+                _logger.Debug("got journal entry details", $"userid: {userId}", $"id: {entryId}");
                 return null;
+            }
 
             return new RecipeJournalEntryDto
             {
@@ -141,7 +149,10 @@ namespace RecipeJournalApi.Infrastructure
                         NextDismissed = entry.NextDismissed
                     }) > 0;
                     if (!success)
+                    {
+                        _logger.Error("failed to insert new journal entry", $"userid: {userId}", $"id: {id}", $"recipe: {entry.RecipeId}");
                         return null;
+                    }
 
                     return GetEntryConn(conn, userId, id);
                 }
@@ -176,7 +187,10 @@ namespace RecipeJournalApi.Infrastructure
                         NextDismissed = entry.NextDismissed
                     }) > 0;
                     if (!success)
+                    {
+                        _logger.Error("failed to update any entries", $"userid: {userId}", $"id: {entry?.Id}", $"recipe: {entry.RecipeId}");
                         return null;
+                    }
 
                     return entry;
                 }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RecipeJournalApi.Controllers;
 using RecipeJournalApi.Infrastructure;
+using SMT.Utilities.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -30,11 +31,24 @@ namespace RecipeJournalApi
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            
+            var loggingConfig = builder.Configuration.GetSection("SmtLoggingConfiguration");
 
             // Add services to the container.
             builder.Services.AddSingleton<IDbConfig, SiteConfig>();
             builder.Services.AddSingleton<IAuthenticationProxyConfiguration, SiteConfig>();
             builder.Services.AddHttpClient();
+            builder.Services.AddSmtLogging(c =>
+            {
+                c.CurrentLogLevel = Microsoft.Extensions.Logging.LogLevel.Error;
+                c.Port = int.Parse(loggingConfig["port"]);
+                c.Host = loggingConfig["host"];
+                c.Secret = loggingConfig["secret"];
+            });
+            // builder.Services.AddSmtLoggingEndpoints(c =>
+            // {
+            //     c.BaseUrl = c.Secret = loggingConfig["endpointBaseUrl"];
+            // });
 #if DEBUG
             builder.Services.AddSingleton<IAuthenticationProxy, MockAuthProxy>();
             builder.Services.AddSingleton<IRecipeRepository, MockRecipeRepository>();
@@ -76,6 +90,9 @@ namespace RecipeJournalApi
             var app = builder.Build();
 
             app.UseStaticFiles();
+
+            // app.UseSmtLoggingEndpoints();
+            app.UseSmtTracingHeaderInterpreter();
 
             // Configure the HTTP request pipeline.
             // if (app.Environment.IsDevelopment())
