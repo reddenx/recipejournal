@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RecipeJournalApi.Infrastructure;
+using SMT.Utilities.Logging;
 
 namespace RecipeJournalApi.Controllers
 {
@@ -15,15 +16,15 @@ namespace RecipeJournalApi.Controllers
     [Route("api/v1/users")]
     public class UserController : Controller
     {
-        private readonly ILogger<UserController> _logger;
+        private readonly ITraceLogger _logger;
         private readonly IUserRepository _userRepo;
         private readonly IAuthenticationProxy _authProxy;
 
-        public UserController(ILogger<UserController> logger, IUserRepository userRepo, IAuthenticationProxy authProxy)
+        public UserController(IUserRepository userRepo, IAuthenticationProxy authProxy, ITraceLogger logger)
         {
-            _logger = logger;
             _userRepo = userRepo;
             _authProxy = authProxy;
+            _logger = logger;
         }
 
         [HttpGet("")]
@@ -39,6 +40,7 @@ namespace RecipeJournalApi.Controllers
                     AccessLevel = user.AccessLevel,
                 });
             }
+            _logger.Debug("attempted to get logged in user, but none was present");
             return StatusCode(404);
         }
 
@@ -51,6 +53,7 @@ namespace RecipeJournalApi.Controllers
         [HttpPost("")]
         public IActionResult CreateUser([FromBody] CreateUserDto input)
         {
+            _logger.Error("attempted to create user, this endpoint is disabled", input.Username);
             throw new NotImplementedException();
         }
 
@@ -68,11 +71,17 @@ namespace RecipeJournalApi.Controllers
 
             //TODO probably want to randomize a delay to prevent distinguishing these 400s from a malicious user
             if(user == null)
+            {
+                _logger.Info("no user found by username", login.Username);
                 return StatusCode(400);
+            }
             
             var areValidCredentials = await _authProxy.AuthenticateAccount(user.Id, login.Secret);
             if(!areValidCredentials)
+            {
+                _logger.Info("user entered bad credentials", login.Username);
                 return StatusCode(400);
+            }
             
             var authProperties = new AuthenticationProperties();
             var claims = user.ToClaims();
@@ -80,6 +89,7 @@ namespace RecipeJournalApi.Controllers
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
+            _logger.Debug("user logged in", login.Username);
             return StatusCode(204);
         }
 
@@ -87,6 +97,7 @@ namespace RecipeJournalApi.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync();
+            _logger.Debug("user logged out");
             return StatusCode(204);
         }
     }
