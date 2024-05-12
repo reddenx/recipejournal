@@ -55,7 +55,7 @@ namespace RecipeJournalApi.Controllers
                 GatheredIds = list.GatheredIngredients.Select(i => i.Id).ToArray(),
                 NonrecipeIngredients = list.NonrecipeIngredients.Select(nr => new NonrecipeIngredientDto
                 {
-                    IngredientId = nr.IngredientId,
+                    Id = nr.IngredientId,
                     Name = nr.Name,
                     Amount = nr.Amount,
                 }).ToArray()
@@ -89,14 +89,14 @@ namespace RecipeJournalApi.Controllers
 
             var nonrecipeIngredients = new List<NonrecipeIngredient>(
                 dto.NonrecipeIngredients?
-                    .Where(nr => nr.IngredientId.HasValue)
+                    .Where(nr => nr.Id.HasValue)
                     .Select(nr => new NonrecipeIngredient()
                     {
-                        IngredientId = nr.IngredientId.Value,
+                        IngredientId = nr.Id.Value,
                         Amount = nr.Amount,
                     }) ?? new NonrecipeIngredient[] { });
 
-            var nonrecipeIngredientsWithoutIds = dto.NonrecipeIngredients?.Where(nr => !nr.IngredientId.HasValue).ToArray() ?? new NonrecipeIngredientDto[] { };
+            var nonrecipeIngredientsWithoutIds = dto.NonrecipeIngredients?.Where(nr => !nr.Id.HasValue).ToArray() ?? new NonrecipeIngredientDto[] { };
             foreach (var iggyWithoutIddy in nonrecipeIngredientsWithoutIds)
             {
                 var ingredient = _recipeRepo.GetIngredientByName(iggyWithoutIddy.Name);
@@ -145,7 +145,7 @@ namespace RecipeJournalApi.Controllers
         }
         public class NonrecipeIngredientDto
         {
-            public Guid? IngredientId { get; set; }
+            public Guid? Id { get; set; }
             public string Name { get; set; }
             public string Amount { get; set; }
         }

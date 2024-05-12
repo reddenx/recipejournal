@@ -200,6 +200,7 @@ export default {
             await shoppingApi.updateShoppingList(
                 this.recipes.map((r) => ({ id: r.id, scale: r.scale })),
                 this.ingredients.filter((i) => i.gathered).map((i) => i.id),
+                this.nonrecipeIngredients.map(i => ({ id: i.id, name: i.name, amount: i.amount }))
             );
         },
         async handleScaleChanged(recipe) {

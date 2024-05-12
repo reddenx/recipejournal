@@ -284,21 +284,24 @@ namespace RecipeJournalApi.Infrastructure
                 };
             }).ToArray();
 
-            var ingredients = recipes.SelectMany(r => r.Ingredients)
-                .Where(i => gatheredIngredientIds.Contains(i.Id))
-                .Select(i => new GatheredIngredient
+            var allPossibleIngredients = recipes.SelectMany(r => r.Ingredients)
+                .Select(i => new { i.Id, i.Name })
+                .Concat(repo.GetRecipe(Guid.Empty).Components[0].Steps[0].Ingredients.Select(i => new { i.Id, i.Name }))
+                .ToArray();
+
+            var ingredients = gatheredIngredientIds
+                .Where(id => allPossibleIngredients.Any(i => i.Id == id))
+                .Select(id => new GatheredIngredient
                 {
-                    Id = i.Id,
-                    Name = i.Name
+                    Id = id,
+                    Name = allPossibleIngredients.First(i => i.Id == id).Name,
                 }).ToArray();
 
             var nrIngredients = nonrecipeIngredients.Select(nr => new NonrecipeShoppingListIngredient
             {
                 Amount = nr.Amount,
                 IngredientId = nr.IngredientId,
-                Name = recipes.SelectMany(r => r.Ingredients)
-                    .FirstOrDefault(i => i.Id == nr.IngredientId)
-                    ?.Name ?? "unknown"
+                Name = allPossibleIngredients.FirstOrDefault(i => i.Id == nr.IngredientId)?.Name ?? "unknown"
             }).ToArray();
 
             var list = _shoppingLists[userId];

@@ -15,7 +15,8 @@ export default class ShoppingApi {
         try {
             let result = await axios.put('api/v1/shopping', {
                 recipeScales,
-                gatheredIds
+                gatheredIds,
+                nonrecipeIngredients
             });
             return result.status == 204;
         } catch {
