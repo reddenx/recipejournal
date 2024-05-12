@@ -92,7 +92,12 @@ namespace RecipeJournalApi.Controllers
             var nonrecipeIngredientsWithoutIds = dto.NonrecipeIngredients.Where(nr => !nr.IngredientId.HasValue).ToArray();
             foreach (var iggyWithoutIddy in nonrecipeIngredientsWithoutIds)
             {
-                var ingredient = _recipeRepo.CreateOrGetIngredient(iggyWithoutIddy.Name);
+                var ingredient = _recipeRepo.GetIngredientByName(iggyWithoutIddy.Name);
+                if(ingredient == null)
+                {
+                    ingredient = _recipeRepo.CreateIngredient(iggyWithoutIddy.Name, "");
+                }
+
                 nonrecipeIngredients.Add(new NonrecipeIngredient
                 {
                     Amount = iggyWithoutIddy.Amount,
