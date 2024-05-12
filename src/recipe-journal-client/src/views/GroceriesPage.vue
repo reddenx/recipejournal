@@ -45,7 +45,7 @@
                     }}<span
                         v-for="amount in ingredient.amounts"
                         :key="amount.unit"
-                        >, {{ amount.amount
+                        >, {{ !!amount.amount ? amount.amount : ''
                         }}{{ formatUnit(amount.unit, amount.amount) }}</span
                     >
                 </div>
@@ -99,6 +99,7 @@
 <script>
 import ShoppingWidget from "../components/ShoppingWidget.vue";
 import ShoppingApi, {
+    NonrecipeShoppingIngredient,
     ShoppingListDto,
     UpdateShoppingListDto,
 } from "../scripts/shoppingApi.js";
@@ -133,7 +134,8 @@ export default {
         },
         handleAddIngredientPressed() {
             this.addingIngredient = false;
-            //do api thing
+            
+            this.nonrecipeIngredients.push(new NonrecipeShoppingIngredient(null, this.newIngredientName, this.newIngredientAmount));
 
             this.save();
         },

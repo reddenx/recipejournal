@@ -5,7 +5,7 @@ export default class ShoppingApi {
         try {
             let result = await axios.get('api/v1/shopping');
             if (result.data) {
-                return new ShoppingListDto(result.data.recipes.map(r => new ShoppingRecipe(r.id, r.title, r.scale, r.ingredients.map(i => new ShoppingIngredient(i.id, i.name, i.unit, i.amount)))), result.data.gatheredIds, result.data.nonrecipeIngredients);
+                return new ShoppingListDto(result.data.recipes.map(r => new ShoppingRecipe(r.id, r.title, r.scale, r.ingredients.map(i => new ShoppingIngredient(i.id, i.name, i.unit, i.amount)))), result.data.gatheredIds, result.data.nonrecipeIngredients.map(nr => new NonrecipeShoppingIngredient(nr.id, nr.name, nr.amount)));
             }
         } catch {
             return null;
@@ -48,5 +48,12 @@ export class ShoppingIngredient {
         this.name = name;
         this.unit = unit;
         this.amount = amount;
+    }
+}
+export class NonrecipeShoppingIngredient {
+    constructor(id, name, amount) {
+        this.id = id;
+        this.name = name;
+        this.amount = amount
     }
 }
