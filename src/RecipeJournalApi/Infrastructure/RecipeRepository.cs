@@ -751,7 +751,19 @@ namespace RecipeJournalApi.Infrastructure
                                 Title = "",
                                 Body = "",
                                 Number = 0,
-                                Ingredients = new Recipe.RecipeIngredient[]{ },
+                                Ingredients = new []
+                                {
+                                    new Recipe.RecipeIngredient
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        IngredientId = Guid.NewGuid(),
+                                        Description = "",
+                                        Amount = 0,
+                                        Number = 0,
+                                        Unit = "",
+                                        Name = "hand soap",
+                                    }
+                                },
                             }
                         },
                     }

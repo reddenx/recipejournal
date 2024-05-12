@@ -4,8 +4,11 @@
             <h1>Shopping List</h1>
             Recipes:
             <div v-for="recipe in recipes" :key="recipe.id">
-                <ShoppingWidget v-model="recipe.scale" @input="handleScaleChanged(recipe)" />
-                {{ recipe.title }} 
+                <ShoppingWidget
+                    v-model="recipe.scale"
+                    @input="handleScaleChanged(recipe)"
+                />
+                {{ recipe.title }}
             </div>
 
             <hr />
@@ -23,7 +26,7 @@
                     }}<span
                         v-for="amount in ingredient.amounts"
                         :key="amount.unit"
-                        >, {{ amount.amount
+                        >, {{ !!amount.amount ? amount.amount : ''
                         }}{{ formatUnit(amount.unit, amount.amount) }}</span
                     >
                 </div>
@@ -47,12 +50,54 @@
                     >
                 </div>
             </div>
+            <button
+                v-show="!addingIngredient"
+                @click="handleShowAddIngredientPressed"
+            >
+                +
+            </button>
+            <div v-show="addingIngredient">
+                <div class="row g-1">
+                    <div class="col">
+                        <input
+                            type="text"
+                            class="form-control"
+                            v-model="newIngredientName"
+                            placeholder="name"
+                        />
+                    </div>
+                    <div class="col">
+                        <input
+                            type="text"
+                            class="form-control"
+                            v-model="newIngredientAmount"
+                            placeholder="amount"
+                        />
+                    </div>
+                    <div class="col-auto">
+                        <button
+                            type="button"
+                            class="btn btn-success"
+                            @click="handleAddIngredientPressed"
+                        >
+                            <span class="fa-solid fa-check"></span>
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            @click="handleCancelAddIngredientPressed"
+                        >
+                            <span class="fa-solid fa-trash-can"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
-import ShoppingWidget from '../components/ShoppingWidget.vue';
+import ShoppingWidget from "../components/ShoppingWidget.vue";
 import ShoppingApi, {
     ShoppingListDto,
     UpdateShoppingListDto,
@@ -67,14 +112,34 @@ export default {
         recipes: [],
         ingredients: [],
         gatheredIds: [],
+        nonrecipeIngredients: [],
+
+        addingIngredient: false,
+        newIngredientName: "",
+        newIngredientAmount: "",
     }),
     async mounted() {
         let shoppingList = await shoppingApi.getShoppingList();
         this.recipes = shoppingList.recipes;
         this.gatheredIds = shoppingList.gatheredIds;
+        this.nonrecipeIngredients = shoppingList.nonrecipeIngredients;
         this.condenseIngredients();
     },
     methods: {
+        handleShowAddIngredientPressed() {
+            this.newIngredientName = "";
+            this.newIngredientAmount = "";
+            this.addingIngredient = true;
+        },
+        handleAddIngredientPressed() {
+            this.addingIngredient = false;
+            //do api thing
+
+            this.save();
+        },
+        handleCancelAddIngredientPressed() {
+            this.addingIngredient = false;
+        },
         condenseIngredients() {
             //transform recipe ingredient lists into flat ingredient list with amounts broken down by unit and scale accounted for
             let ingredients = [];
@@ -101,6 +166,17 @@ export default {
                     i.ingredient.amount * i.scale
                 );
             });
+            this.nonrecipeIngredients.forEach((i) => {
+                if (!hash[i.name])
+                    hash[i.name] = new ShoppingIngredient(
+                        i.id,
+                        i.name,
+                        this.gatheredIds.includes(i.id)
+                    );
+
+                hash[i.name].addIngredient(i.amount, 0);//todo amounts
+            });
+
             this.ingredients = [];
             this.ingredients.push(...Object.values(hash));
             this.ingredients.sort((a, b) => a.name.localeCompare(b.name));
@@ -123,17 +199,16 @@ export default {
         async save() {
             await shoppingApi.updateShoppingList(
                 this.recipes.map((r) => ({ id: r.id, scale: r.scale })),
-                this.ingredients.filter((i) => i.gathered).map((i) => i.id)
+                this.ingredients.filter((i) => i.gathered).map((i) => i.id),
             );
         },
         async handleScaleChanged(recipe) {
             this.condenseIngredients();
-            if(recipe.scale == 0) {
+            if (recipe.scale == 0) {
                 this.removeRecipe(recipe);
             } else {
                 this.save();
             }
-            
         },
     },
 };

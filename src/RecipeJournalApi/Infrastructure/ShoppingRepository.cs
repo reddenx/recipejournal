@@ -230,11 +230,23 @@ namespace RecipeJournalApi.Infrastructure
         public ShoppingList GetUserShoppingList(Guid userId)
         {
             if (!_shoppingLists.ContainsKey(userId))
+            {
+                var repo = new MockRecipeRepository();
+                var special = repo.GetRecipe(Guid.Empty).Components.Single().Steps.Single().Ingredients
+                    .Select(i => new NonrecipeShoppingListIngredient
+                    {
+                        IngredientId = i.Id,
+                        Name = i.Name,
+                        Amount = "test amount"
+                    });
+
                 _shoppingLists.Add(userId, new ShoppingList
                 {
                     GatheredIngredients = new GatheredIngredient[] { },
-                    Recipes = new ShoppingRecipe[] { }
+                    Recipes = new ShoppingRecipe[] { },
+                    NonrecipeIngredients = special.ToArray()
                 });
+            }
 
             return _shoppingLists[userId];
         }

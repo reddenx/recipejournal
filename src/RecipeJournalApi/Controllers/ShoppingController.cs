@@ -52,13 +52,20 @@ namespace RecipeJournalApi.Controllers
                         Unit = i.Unit,
                     }).ToArray(),
                 }).ToArray(),
-                GatheredIds = list.GatheredIngredients.Select(i => i.Id).ToArray()
+                GatheredIds = list.GatheredIngredients.Select(i => i.Id).ToArray(),
+                NonrecipeIngredients = list.NonrecipeIngredients.Select(nr => new NonrecipeIngredientDto
+                {
+                    IngredientId = nr.IngredientId,
+                    Name = nr.Name,
+                    Amount = nr.Amount,
+                }).ToArray()
             };
         }
         public class ShoppingListDto
         {
             public ShoppingListRecipeDto[] Recipes { get; set; }
             public Guid[] GatheredIds { get; set; }
+            public NonrecipeIngredientDto[] NonrecipeIngredients { get; set; }
         }
         public class ShoppingListRecipeDto
         {
@@ -81,19 +88,19 @@ namespace RecipeJournalApi.Controllers
             var user = UserInfo.FromClaimsPrincipal(this.User);
 
             var nonrecipeIngredients = new List<NonrecipeIngredient>(
-                dto.NonrecipeIngredients
+                dto.NonrecipeIngredients?
                     .Where(nr => nr.IngredientId.HasValue)
                     .Select(nr => new NonrecipeIngredient()
                     {
                         IngredientId = nr.IngredientId.Value,
                         Amount = nr.Amount,
-                    }));
+                    }) ?? new NonrecipeIngredient[] { });
 
-            var nonrecipeIngredientsWithoutIds = dto.NonrecipeIngredients.Where(nr => !nr.IngredientId.HasValue).ToArray();
+            var nonrecipeIngredientsWithoutIds = dto.NonrecipeIngredients?.Where(nr => !nr.IngredientId.HasValue).ToArray() ?? new NonrecipeIngredientDto[] { };
             foreach (var iggyWithoutIddy in nonrecipeIngredientsWithoutIds)
             {
                 var ingredient = _recipeRepo.GetIngredientByName(iggyWithoutIddy.Name);
-                if(ingredient == null)
+                if (ingredient == null)
                 {
                     ingredient = _recipeRepo.CreateIngredient(iggyWithoutIddy.Name, "");
                 }
@@ -129,14 +136,14 @@ namespace RecipeJournalApi.Controllers
         {
             public ShoppingRecipeScaleDto[] RecipeScales { get; set; }
             public Guid[] GatheredIds { get; set; }
-            public NonRecipeIngredientDto[] NonrecipeIngredients { get; set; }
+            public NonrecipeIngredientDto[] NonrecipeIngredients { get; set; }
         }
         public class ShoppingRecipeScaleDto
         {
             public Guid Id { get; set; }
             public float Scale { get; set; }
         }
-        public class NonRecipeIngredientDto
+        public class NonrecipeIngredientDto
         {
             public Guid? IngredientId { get; set; }
             public string Name { get; set; }
