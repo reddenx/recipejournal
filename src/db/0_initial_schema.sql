@@ -110,6 +110,14 @@ create table shopping_gathered
     IngredientId varchar(32) not null
 );
 
+create table shopping_nonrecipe_item
+(
+    UserId varchar(32) not null,
+    IngredientId varchar(32) null, --either ingredientid is null, or name is null, not both
+    `Name` varchar(32) null,
+    Amount varchar(32) null,
+)
+
 create table recipe_journal_entry
 (
     Id varchar(32) not null,
