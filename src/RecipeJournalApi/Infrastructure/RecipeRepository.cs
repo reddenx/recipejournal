@@ -10,9 +10,17 @@ namespace RecipeJournalApi.Infrastructure
 {
     public interface IRecipeRepository
     {
+        Ingredient CreateIngredient(string name, string description);
+        Ingredient GetIngredientByName(string name);
         Recipe GetRecipe(Guid id);
         RecipeListItem[] GetRecipesForUser(Guid? userId);
         Recipe UpdateRecipe(RecipeInputDto update, UserInfo user);
+    }
+    public class Ingredient
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
     }
     public class RecipeListItem
     {
@@ -105,6 +113,64 @@ namespace RecipeJournalApi.Infrastructure
         {
             _connectionString = config.ConnectionString;
             _logger = logger;
+        }
+
+        public Ingredient CreateIngredient(string name, string description)
+        {
+            var foundIngredient = GetIngredientByName(name);
+            if (foundIngredient != null)
+                return foundIngredient;
+
+            const string sqlInsertIngredient = @"
+                insert into ingredient (Id, `Name`, `Description`, DateCreated)
+                values (@Id, @Name, @Description, @DateCreated)";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                var id = Guid.NewGuid();
+                var date = DateTime.Now;
+                conn.Execute(sqlInsertIngredient, new
+                {
+                    Id = id.ToString("N"),
+                    Name = name,
+                    Description = description,
+                    DateCreated = date,
+                });
+                return new Ingredient
+                {
+                    Id = id,
+                    Description = description,
+                    Name = name,
+                };
+            }
+        }
+
+        public Ingredient GetIngredientByName(string name)
+        {
+            const string sqlGetIngredient = @"
+                select 
+                    i.Id,
+                    i.Name,
+                    i.Description
+                from ingredient i
+                where i.Name = @Name";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                var data = conn.Query<IngredientData>(sqlGetIngredient, new
+                {
+                    Name = name
+                }).FirstOrDefault();
+
+                if (data != null)
+                {
+                    return new Ingredient
+                    {
+                        Id = Guid.Parse(data.Id),
+                        Description = data.Description,
+                        Name = data.Name,
+                    };
+                }
+                return null;
+            }
         }
 
         public Recipe GetRecipe(Guid id)
@@ -510,6 +576,12 @@ namespace RecipeJournalApi.Infrastructure
             public float Amount { get; set; }
             public string Description { get; set; }
         }
+        class IngredientData
+        {
+            public string Id { get; set; }
+            public string Name { get; set; }
+            public string Description { get; set; }
+        }
     }
 
     public class MockRecipeRepository : IRecipeRepository
@@ -599,8 +671,104 @@ namespace RecipeJournalApi.Infrastructure
             return updatedRecipe;
         }
 
+        //ok I did a pretty bad hack of custom ingredients added to a fake recipe... whatever it's a mock, as long as it works for dev testing
+        public Ingredient CreateIngredient(string name, string description)
+        {
+            var found = GetIngredientByName(name);
+            if (found != null) return found;
+
+            var fakeRecipe = _recipeDB.Single(r => r.Id == Guid.Empty);
+            var step = fakeRecipe.Components.Single().Steps.Single();
+            var newIngredient = new Recipe.RecipeIngredient
+            {
+                Id = Guid.NewGuid(),
+                Amount = 1,
+                Unit = "count",
+                Name = name,
+            };
+            step.Ingredients = step.Ingredients.Concat(new[] { newIngredient }).ToArray();
+
+            return new Ingredient
+            {
+                Id = newIngredient.Id,
+                Name = newIngredient.Name,
+                Description = newIngredient.Description,
+            };
+        }
+
+        public Ingredient GetIngredientByName(string name)
+        {
+            var ingGroups = _recipeDB.SelectMany(r => r.Components)
+                .SelectMany(c => c.Steps)
+                .SelectMany(s => s.Ingredients)
+                .GroupBy(s => s.Name);
+            var found = ingGroups.FirstOrDefault(g => g.Key == name);
+            if (found != null)
+            {
+                var firstFound = found.FirstOrDefault();
+                return new Ingredient()
+                {
+                    Id = firstFound.Id,
+                    Name = firstFound.Name,
+                    Description = firstFound.Description,
+                };
+            }
+            return null;
+        }
+
         private static readonly List<Recipe> _recipeDB = new List<Recipe>()
         {
+            new Recipe()
+            {
+                AuthorId = Guid.Empty,
+                Author = "invisible",
+                DateCreated = DateTime.Now,
+                Description = "invisible",
+                Title = "invisible",
+                Id = Guid.Empty,
+                DurationMinutes = 0,
+                IsDraft = true,
+                IsPublic = false,
+                LastModified = DateTime.Now,
+                Rating = 0,
+                Servings = null,
+                Tags = null,
+                Version = 0,
+                VersionDate = DateTime.Now,
+                Components = new []
+                {
+                    new Recipe.RecipeComponent
+                    {
+                        Id = Guid.Empty,
+                        Description = "",
+                        Number = 0,
+                        Title = "",
+                        Steps = new []
+                        {
+                            new Recipe.RecipeStep
+                            {
+                                Id = Guid.Empty,
+                                Title = "",
+                                Body = "",
+                                Number = 0,
+                                Ingredients = new []
+                                {
+                                    new Recipe.RecipeIngredient
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        IngredientId = Guid.NewGuid(),
+                                        Description = "",
+                                        Amount = 0,
+                                        Number = 0,
+                                        Unit = "",
+                                        Name = "hand soap",
+                                    }
+                                },
+                            }
+                        },
+                    }
+                }
+            },
             new Recipe()
             {
                 AuthorId = MockUserRepository.MOCK_USER,
