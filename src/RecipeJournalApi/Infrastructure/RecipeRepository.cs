@@ -10,9 +10,16 @@ namespace RecipeJournalApi.Infrastructure
 {
     public interface IRecipeRepository
     {
+        Ingredient CreateOrGetIngredient(string name);
         Recipe GetRecipe(Guid id);
         RecipeListItem[] GetRecipesForUser(Guid? userId);
         Recipe UpdateRecipe(RecipeInputDto update, UserInfo user);
+    }
+    public class Ingredient
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
     }
     public class RecipeListItem
     {
