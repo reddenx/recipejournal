@@ -12,12 +12,24 @@ namespace RecipeJournalApi.Infrastructure
     public interface IShoppingRepository
     {
         ShoppingList GetUserShoppingList(Guid userId);
-        bool UpdateShoppingList(Guid userId, ShoppingRecipeScale[] recipeIds, Guid[] gatheredIngredientIds);
+        bool UpdateShoppingList(Guid userId, ShoppingRecipeScale[] recipeIds, Guid[] gatheredIngredientIds, NonrecipeIngredient[] nonrecipeIngredients);
+    }
+    public class NonrecipeIngredient
+    {
+        public Guid IngredientId { get; set; }
+        public string Amount { get; set; }
+    }
+    public class NonrecipeShoppingListIngredient
+    {
+        public Guid IngredientId { get; set; }
+        public string Name { get; set; }
+        public string Amount { get; set; }
     }
     public class ShoppingList
     {
         public ShoppingRecipe[] Recipes { get; set; }
         public GatheredIngredient[] GatheredIngredients { get; set; }
+        public NonrecipeShoppingListIngredient[] NonrecipeIngredients { get; set; }
     }
     public class ShoppingRecipe
     {
@@ -80,10 +92,21 @@ namespace RecipeJournalApi.Infrastructure
                 inner join ingredient i on i.Id = g.IngredientId
             where g.UserId = @Id";
 
+            var sqlNonrecipe = @"
+            select
+                nr.UserId,
+                nr.IngredientId,
+                i.Name,
+                nr.Amount
+            from shopping_nonrecipe_ingredient nr
+                inner join ingredient i on i.Id = nr.IngredientId
+            where nr.UserId = @Id";
+
             using (var conn = new MySqlConnection(_connectionString))
             {
                 var recipes = conn.Query<ShoppingRecipeData>(sqlRecipes, new { Id = userId.ToString("N") });
                 var gathered = conn.Query<ShoppingGatheredData>(sqlGathered, new { Id = userId.ToString("N") });
+                var nonrecipe = conn.Query<ShoppingNonrecipeData>(sqlNonrecipe, new { Id = userId.ToString("N") });
 
                 return new ShoppingList
                 {
@@ -105,17 +128,26 @@ namespace RecipeJournalApi.Infrastructure
                             Unit = i.Unit
                         }).ToArray(),
                     }).ToArray(),
+                    NonrecipeIngredients = nonrecipe.Select(nr => new NonrecipeShoppingListIngredient
+                    {
+                        IngredientId = Guid.Parse(nr.IngredientId),
+                        Name = nr.Name,
+                        Amount = nr.Amount
+                    }).ToArray()
                 };
             }
         }
 
-        public bool UpdateShoppingList(Guid userId, ShoppingRecipeScale[] recipeScales, Guid[] gatheredIngredientIds)
+        public bool UpdateShoppingList(Guid userId, ShoppingRecipeScale[] recipeScales, Guid[] gatheredIngredientIds, NonrecipeIngredient[] nonrecipeIngredients)
         {
             var delRecipes = @"
             delete from shopping_recipe
             where UserId = @Id";
             var delGathered = @"
             delete from shopping_gathered
+            where UserId = @Id";
+            var delNonrecipe = @"
+            delete from shopping_nonrecipe_ingredient
             where UserId = @Id";
 
             //ugh I wish mysql had tvp and merge
@@ -125,27 +157,40 @@ namespace RecipeJournalApi.Infrastructure
             var insertGathered = @"
             insert into shopping_gathered (UserId, IngredientId)
             values (@UserId, @IngredientId)";
+            var insertNonrecipe = @"
+            insert into shopping_nonrecipe_ingredient
+            values (@UserId, @IngredientId, @Amount)";
 
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Execute(delRecipes, new { Id = userId.ToString("N") });
                 conn.Execute(delGathered, new { Id = userId.ToString("N") });
+                conn.Execute(delNonrecipe, new { Id = userId.ToString("N") });
 
-                foreach(var scale in recipeScales)
+                foreach (var scale in recipeScales)
                 {
-                    conn.Execute(insertRecipe, new 
+                    conn.Execute(insertRecipe, new
                     {
                         RecipeId = scale.Id.ToString("N"),
                         UserId = userId.ToString("N"),
                         Scale = scale.Scale
                     });
                 }
-                foreach(var ingredientId in gatheredIngredientIds)
+                foreach (var ingredientId in gatheredIngredientIds)
                 {
-                    conn.Execute(insertGathered, new 
+                    conn.Execute(insertGathered, new
                     {
                         UserId = userId.ToString("N"),
                         IngredientId = ingredientId.ToString("N")
+                    });
+                }
+                foreach (var nonRecIngredient in nonrecipeIngredients)
+                {
+                    conn.Execute(insertNonrecipe, new
+                    {
+                        UserId = userId.ToString("N"),
+                        IngredientId = nonRecIngredient.IngredientId.ToString("N"),
+                        Amount = nonRecIngredient.Amount
                     });
                 }
             }
@@ -169,7 +214,13 @@ namespace RecipeJournalApi.Infrastructure
             public string IngredientId { get; set; }
             public string Name { get; set; }
         }
-
+        public class ShoppingNonrecipeData
+        {
+            public string UserId { get; set; }
+            public string IngredientId { get; set; }
+            public string Name { get; set; }
+            public string Amount { get; set; }
+        }
     }
 
     public class MockShoppingRepository : IShoppingRepository
@@ -188,7 +239,7 @@ namespace RecipeJournalApi.Infrastructure
             return _shoppingLists[userId];
         }
 
-        public bool UpdateShoppingList(Guid userId, ShoppingRecipeScale[] recipeIds, Guid[] gatheredIngredientIds)
+        public bool UpdateShoppingList(Guid userId, ShoppingRecipeScale[] recipeIds, Guid[] gatheredIngredientIds, NonrecipeIngredient[] nonrecipeIngredients)
         {
             var repo = new MockRecipeRepository();
 
@@ -196,7 +247,8 @@ namespace RecipeJournalApi.Infrastructure
                 _shoppingLists.Add(userId, new ShoppingList
                 {
                     GatheredIngredients = new GatheredIngredient[] { },
-                    Recipes = new ShoppingRecipe[] { }
+                    Recipes = new ShoppingRecipe[] { },
+                    NonrecipeIngredients = new NonrecipeShoppingListIngredient[] { }
                 });
 
             var recipes = recipeIds.Select(r =>
@@ -228,9 +280,19 @@ namespace RecipeJournalApi.Infrastructure
                     Name = i.Name
                 }).ToArray();
 
+            var nrIngredients = nonrecipeIngredients.Select(nr => new NonrecipeShoppingListIngredient
+            {
+                Amount = nr.Amount,
+                IngredientId = nr.IngredientId,
+                Name = recipes.SelectMany(r => r.Ingredients)
+                    .FirstOrDefault(i => i.Id == nr.IngredientId)
+                    ?.Name ?? "unknown"
+            }).ToArray();
+
             var list = _shoppingLists[userId];
             list.Recipes = recipes;
             list.GatheredIngredients = ingredients;
+            list.NonrecipeIngredients = nrIngredients;
 
             return true;
         }
