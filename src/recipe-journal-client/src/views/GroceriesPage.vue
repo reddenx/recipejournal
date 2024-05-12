@@ -54,7 +54,10 @@
                 v-show="!addingIngredient"
                 @click="handleShowAddIngredientPressed"
             >
-                +
+                + Add Custom
+            </button>
+            <button class="btn btn-danger" v-show="nonrecipeIngredients.length" @click="handleClearNonrecipeIngredients()">
+                Remove All Custom
             </button>
             <div v-show="addingIngredient">
                 <div class="row g-1">
@@ -127,6 +130,12 @@ export default {
         this.condenseIngredients();
     },
     methods: {
+        handleClearNonrecipeIngredients() {
+            this.nonrecipeIngredients.splice(0,this.nonrecipeIngredients.length);
+
+            this.save();
+            this.condenseIngredients();
+        },
         handleShowAddIngredientPressed() {
             this.newIngredientName = "";
             this.newIngredientAmount = "";
@@ -138,6 +147,7 @@ export default {
             this.nonrecipeIngredients.push(new NonrecipeShoppingIngredient(null, this.newIngredientName, this.newIngredientAmount));
 
             this.save();
+            this.condenseIngredients();
         },
         handleCancelAddIngredientPressed() {
             this.addingIngredient = false;
