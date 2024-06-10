@@ -18,12 +18,10 @@ namespace RecipeJournalApi.Controllers
     {
         private readonly ITraceLogger _logger;
         private readonly IUserRepository _userRepo;
-        private readonly IAuthenticationProxy _authProxy;
 
-        public UserController(IUserRepository userRepo, IAuthenticationProxy authProxy, ITraceLogger logger)
+        public UserController(IUserRepository userRepo, ITraceLogger logger)
         {
             _userRepo = userRepo;
-            _authProxy = authProxy;
             _logger = logger;
         }
 
@@ -62,36 +60,6 @@ namespace RecipeJournalApi.Controllers
         {
             public string Username { get; set; }
             public string Secret {get;set;}
-        }
-
-        [AllowAnonymous]
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto login)
-        {
-            var user = _userRepo.GetUser(login.Username);
-
-            //TODO probably want to randomize a delay to prevent distinguishing these 400s from a malicious user
-            if(user == null)
-            {
-                _logger.Info("no user found by username", login.Username);
-                return StatusCode(400);
-            }
-            
-            var areValidCredentials = await _authProxy.AuthenticateAccount(user.Id, login.Secret);
-            if(!areValidCredentials)
-            {
-                _logger.Info("user entered bad credentials", login.Username);
-                return StatusCode(400);
-            }
-            
-            var authProperties = new AuthenticationProperties();
-            var claims = user.ToClaims();
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
-
-            _logger.Debug("user logged in", login.Username);
-            return StatusCode(204);
         }
 
         [HttpPost("logout")]

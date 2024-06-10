@@ -16,7 +16,7 @@ module.exports = {
     filenameHashing: false,
     devServer: {
         proxy: {
-            "^/api": {
+            "^/(api|login|integrationauth)": {
                 target: 'http://localhost:5002'
             }
         }
