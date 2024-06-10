@@ -1,8 +1,6 @@
 <template>
     <div class="login-container">
         <div v-if="!user" class="loggedout-container">
-            <input type="text" v-model="username" :disabled="busy" placeholder="username" />
-            <input type="password" v-model="password" :disabled="busy" placeholder="pasword" />
             <button
                 type="button"
                 @click="login"
@@ -29,8 +27,6 @@ const userApi = new UserApi();
 export default {
     components: {},
     data: () => ({
-        username: "",
-        password: "",
         busy: true,
         user: null,
     }),
@@ -44,12 +40,7 @@ export default {
     methods: {
         async login() {
             this.busy = true;
-            let success = await userApi.login(this.username, this.password);
-            if (success) {
-                this.user = await userApi.getLoggedInUser();
-                this.$emit('login', this.user.username);
-            }
-            this.busy = false;
+            window.location = "/login";
         },
         async logout() {
             this.busy = true;
