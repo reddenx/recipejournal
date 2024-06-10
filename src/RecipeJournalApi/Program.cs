@@ -49,14 +49,14 @@ namespace RecipeJournalApi
                 c.Secret = loggingConfig["secret"];
             });
 
+            builder.Services.AddSingleton<IAuthenticationConfiguration, SiteConfig>();
             
 #if DEBUG
+            builder.Services.AddSingleton<IShoppingRepository, MockShoppingRepository>();
             builder.Services.AddSingleton<IRecipeRepository, MockRecipeRepository>();
             builder.Services.AddSingleton<IUserRepository, MockUserRepository>();
-            builder.Services.AddSingleton<IShoppingRepository, MockShoppingRepository>();
             builder.Services.AddSingleton<IJournalRepository, MockJournalRepository>();
             builder.Services.AddSingleton<IAuthenticationUtility, MockAuthenticationUtility>();
-            builder.Services.AddSingleton<IAuthenticationConfiguration, SiteConfig>();
 #else
             builder.Services.AddSingleton<IShoppingRepository, ShoppingRepository>();
             builder.Services.AddSingleton<IRecipeRepository, RecipeRepository>();
@@ -93,7 +93,7 @@ namespace RecipeJournalApi
 
             app.UseStaticFiles();
 
-            // app.UseSmtLoggingEndpoints();
+            app.UseSmtLoggingEndpoints();
             app.UseSmtTracingHeaderInterpreter();
 
             // Configure the HTTP request pipeline.
