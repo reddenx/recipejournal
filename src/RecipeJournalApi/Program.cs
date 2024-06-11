@@ -48,6 +48,10 @@ namespace RecipeJournalApi
                 c.Host = loggingConfig["host"];
                 c.Secret = loggingConfig["secret"];
             });
+            builder.Services.AddSmtLoggingEndpoints(c => 
+            {
+                c.BaseUrl = loggingConfig["endpointBaseUrl"];
+            });
 
             builder.Services.AddSingleton<IAuthenticationConfiguration, SiteConfig>();
             
@@ -93,8 +97,8 @@ namespace RecipeJournalApi
 
             app.UseStaticFiles();
 
-            app.UseSmtLoggingEndpoints();
             app.UseSmtTracingHeaderInterpreter();
+            app.UseSmtLoggingEndpoints();
 
             // Configure the HTTP request pipeline.
             // if (app.Environment.IsDevelopment())
