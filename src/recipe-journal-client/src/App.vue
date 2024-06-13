@@ -9,12 +9,17 @@
 
 <script>
 import NavigationBar from "./components/NavigationBar.vue";
+import VersionChecker from "./scripts/versionChecker";
+const versionChecker = new VersionChecker();
 
 export default {
     components: { NavigationBar },
     data: () => ({
         test: "hi",
     }),
+    async mounted() {
+        await versionChecker();
+    },
 };
 </script>
 
