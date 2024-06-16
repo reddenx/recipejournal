@@ -9,8 +9,7 @@
             <!-- <router-link to="/goals">Goals</router-link> | -->
             <router-link to="/groceries">Groceries</router-link> |
         </template>
-        <button type="button" v-show="!showLoginComponent && !isLoggedIn" @click="showLoginButtonPressed"> -&gt; </button>
-        <div class="nav-inline" v-show="showLoginComponent || isLoggedIn">
+        <div class="nav-inline">
             <login-component @login="handleLogin" @logout="handleLogout" />
         </div>
     </div>
@@ -23,7 +22,6 @@ export default {
     components: { LoginComponent },
     data: () => ({
         isLoggedIn: false,
-        showLoginComponent: false,
     }),
     methods: {
         handleLogin(username) {
@@ -31,9 +29,6 @@ export default {
         },
         handleLogout() {
             this.isLoggedIn = false;
-        },
-        showLoginButtonPressed() {
-            this.showLoginComponent = true;
         }
     },
 };

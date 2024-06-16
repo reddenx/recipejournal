@@ -207,7 +207,8 @@ export default {
             }));
             await shoppingApi.updateShoppingList(
                 [{ id: recipe.id, scale: recipe.amountShoppingFor }, ...scales],
-                list.gatheredIds
+                list.gatheredIds,
+                list.nonrecipeIngredients
             );
             this.shoppingRecipeIds = list.recipes.map((r) => r.id);
             this.shoppingRecipeIds.push(recipe.id);
