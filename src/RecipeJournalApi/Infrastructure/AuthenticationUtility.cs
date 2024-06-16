@@ -192,6 +192,13 @@ namespace RecipeJournalApi.Infrastructure
         private static readonly List<MockSession> _sessions = new List<MockSession>();
         private static readonly List<MockPreauth> _preauths = new List<MockPreauth>();
 
+        private readonly IAuthenticationConfiguration _config;
+
+        public MockAuthenticationUtility(IAuthenticationConfiguration config)
+        {
+            _config = config;
+        }
+
         class MockPreauth
         {
             public string Code { get; set; }
@@ -225,7 +232,7 @@ namespace RecipeJournalApi.Infrastructure
                 Code = code,
                 Key = Guid.NewGuid().ToString("N"),
                 PreKey = Guid.NewGuid().ToString("N"),
-                Redirect = $"http://localhost:8081/login/{code}"
+                Redirect = $"http://{_config.Domain}/login/{code}"
             };
             _preauths.Add(data);
             return new PreauthData(data.Code, data.Key, data.Redirect);
