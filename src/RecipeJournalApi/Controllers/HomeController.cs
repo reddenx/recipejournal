@@ -35,11 +35,20 @@ namespace RecipeJournalApi.Controllers
         }
 
         [HttpGet("/{page?}/{id?}")]
+        [ResponseCache(Duration = 60 * 60 * 24 * 30, Location = ResponseCacheLocation.Client)]
         public IActionResult Index(string page, string id)
         {
             _logger.Debug("home page accessed", $"page: {page}", $"id: {id}");
             return File("index.html", "text/html");
         }
+
+        [HttpGet("api/v1/version")]
+        public IActionResult GetVersion()
+        {
+            var versionString = GetType().Assembly.GetName().Version.ToString();
+            return StatusCode(200, versionString);
+        }
+
 
         [HttpGet("login")]
         public async Task<IActionResult> LoginRedirect()
