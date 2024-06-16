@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 const CLIENT_VERSION = process.appInfo.appVersion;
 
 export default class VersionChecker {
@@ -20,7 +22,7 @@ export default class VersionChecker {
 
         if (!version.startsWith(CLIENT_VERSION)) {
             console.log('old version detected: ');
-            window.location = '?v=' + v + window.location.hash;
+            window.location = '?v=' + version + window.location.hash;
         }
     }
 }
