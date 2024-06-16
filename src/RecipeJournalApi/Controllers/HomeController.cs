@@ -42,7 +42,7 @@ namespace RecipeJournalApi.Controllers
             return File("index.html", "text/html");
         }
 
-        [HttpGet("api/version")]
+        [HttpGet("api/v1/version")]
         public IActionResult GetVersion()
         {
             var versionString = GetType().Assembly.GetName().Version.ToString();

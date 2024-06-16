@@ -18,7 +18,7 @@ export default {
         test: "hi",
     }),
     async mounted() {
-        await versionChecker();
+        await versionChecker.ensureCorrectVersion();
     },
 };
 </script>

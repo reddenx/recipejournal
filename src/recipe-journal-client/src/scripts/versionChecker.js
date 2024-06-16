@@ -12,7 +12,7 @@ export default class VersionChecker {
 
         let version = CLIENT_VERSION;
         try {
-            let response = await axios.get('rss/api/v2/version');
+            let response = await axios.get('/api/v1/version');
             if (response.data) {
                 version = response.data;
             }
@@ -21,7 +21,7 @@ export default class VersionChecker {
         }
 
         if (!version.startsWith(CLIENT_VERSION)) {
-            console.log('old version detected: ');
+            console.log('old version detected: ', CLIENT_VERSION, version);
             window.location = '?v=' + version + window.location.hash;
         }
     }
