@@ -67,6 +67,7 @@ namespace RecipeJournalApi
             builder.Services.AddSingleton<IUserRepository, UserRepository>();
             builder.Services.AddSingleton<IJournalRepository, JournalRepository>();
             builder.Services.AddSingleton<IAuthenticationUtility, AuthenticationUtility>();
+            builder.Services.AddSingleton<IAuthenticationConfiguration, SiteConfig>();
 #endif
 
             builder.Services.AddControllers();
