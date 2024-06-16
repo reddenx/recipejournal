@@ -51,9 +51,9 @@ namespace RecipeJournalApi
 
             
 #if DEBUG
+            builder.Services.AddSingleton<IShoppingRepository, MockShoppingRepository>();
             builder.Services.AddSingleton<IRecipeRepository, MockRecipeRepository>();
             builder.Services.AddSingleton<IUserRepository, MockUserRepository>();
-            builder.Services.AddSingleton<IShoppingRepository, MockShoppingRepository>();
             builder.Services.AddSingleton<IJournalRepository, MockJournalRepository>();
             builder.Services.AddSingleton<IAuthenticationUtility, MockAuthenticationUtility>();
             builder.Services.AddSingleton<IAuthenticationConfiguration, SiteConfig>();
@@ -63,6 +63,7 @@ namespace RecipeJournalApi
             builder.Services.AddSingleton<IUserRepository, UserRepository>();
             builder.Services.AddSingleton<IJournalRepository, JournalRepository>();
             builder.Services.AddSingleton<IAuthenticationUtility, AuthenticationUtility>();
+            builder.Services.AddSingleton<IAuthenticationConfiguration, SiteConfig>();
 #endif
 
             builder.Services.AddControllers();
