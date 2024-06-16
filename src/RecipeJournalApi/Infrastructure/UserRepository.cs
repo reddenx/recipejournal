@@ -18,19 +18,22 @@ namespace RecipeJournalApi.Infrastructure
     {
         UserData GetUserByAccountId(Guid accountId);
         UserData GetUserByIntegration(string integrationAccountId);
-        UserData CreateUser(Guid accountId, string integrationAccountId);
+        bool CreateUser(Guid accountId, string username, string integrationAccountId);
+        bool UpdateUsername(Guid accountId, string username);
     }
 
     public class UserData
     {
-        public UserData(Guid id, string accessLevel, string integrationAccountId)
+        public UserData(Guid id, string username, string accessLevel, string integrationAccountId)
         {
             Id = id;
+            Username = username;
             AccessLevel = accessLevel;
             IntegrationAccountId = integrationAccountId;
         }
 
         public Guid Id { get; private set; }
+        public string Username { get; private set; }
         public string AccessLevel { get; private set; }
         public string IntegrationAccountId { get; private set; }
     }
@@ -86,12 +89,49 @@ namespace RecipeJournalApi.Infrastructure
             _logger = logger;
         }
 
-        public UserData CreateUser(Guid accountId, string integrationAccountId)
+        public bool UpdateUsername(Guid accountId, string username)
         {
             try
             {
-                var sql = @"";
-                throw new NotImplementedException();
+                var sql = @"
+                    update account
+                    set Username = @Username
+                    where Id = @AccountId";
+
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    return conn.Execute(sql, new
+                    {
+                        AccountId = accountId.ToString("N"),
+                        Username = username,
+                    }) > 0;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error("failed to update username", e, accountId, username);
+                throw;
+            }
+        }
+
+        public bool CreateUser(Guid accountId, string username, string integrationAccountId)
+        {
+            try
+            {
+                var sql = @"
+                    insert into account (Id, Username, IntegrationAccountId, PermissionsRole, DateCreated)
+                    values (@AccountId, @Username, @IntegrationAccountId, 'user', @DateCreated)";
+
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    return conn.Execute(sql, new
+                    {
+                        AccountId = accountId.ToString("N"),
+                        Username = username,
+                        IntegrationAccountId = integrationAccountId,
+                        DateCreated = DateTime.UtcNow
+                    }) > 0;
+                }
             }
             catch (Exception e)
             {
@@ -106,6 +146,7 @@ namespace RecipeJournalApi.Infrastructure
                 var sql = @"
                     select 
                         a.Id,
+                        a.Username,
                         a.IntegrationAccountId,
                         a.PermissionsRole
                     from account a
@@ -123,6 +164,7 @@ namespace RecipeJournalApi.Infrastructure
 
                     return new UserData(
                         Guid.Parse(data.Id),
+                        data.Username,
                         data.PermissionsRole,
                         data.IntegrationAccountId);
                 }
@@ -140,6 +182,7 @@ namespace RecipeJournalApi.Infrastructure
                 var sql = @"
                     select 
                         a.Id,
+                        a.Username,
                         a.IntegrationAccountId,
                         a.PermissionsRole
                     from account a
@@ -157,6 +200,7 @@ namespace RecipeJournalApi.Infrastructure
 
                     return new UserData(
                         Guid.Parse(data.Id),
+                        data.Username,
                         data.PermissionsRole,
                         data.IntegrationAccountId);
                 }
@@ -171,6 +215,7 @@ namespace RecipeJournalApi.Infrastructure
         class UserDataRow
         {
             public string Id { get; set; }
+            public string Username { get; set; }
             public string IntegrationAccountId { get; set; }
             public string PermissionsRole { get; set; }
         }
@@ -184,15 +229,28 @@ namespace RecipeJournalApi.Infrastructure
         class MockUser
         {
             public Guid Id { get; set; }
+            public string Username { get; set; }
             public string IntegrationAccountId { get; set; }
             public string Role { get; set; }
         }
 
-        public UserData CreateUser(Guid accountId, string integrationAccountId)
+
+
+        public bool UpdateUsername(Guid accountId, string username)
+        {
+            var user = _users.FirstOrDefault(u => u.Id == accountId);
+            if (user == null)
+                return false;
+            user.Username = username;
+            return true;
+        }
+
+        public bool CreateUser(Guid accountId, string username, string integrationAccountId)
         {
             var user = new MockUser
             {
                 IntegrationAccountId = integrationAccountId,
+                Username = username,
                 Role = "user",
                 Id = accountId,
             };
@@ -205,7 +263,7 @@ namespace RecipeJournalApi.Infrastructure
             }
 
             _users.Add(user);
-            return new UserData(user.Id, user.Role, user.IntegrationAccountId);
+            return true;
         }
 
         public UserData GetUserByAccountId(Guid accountId)
@@ -213,7 +271,7 @@ namespace RecipeJournalApi.Infrastructure
             var user = _users.FirstOrDefault(u => u.Id == accountId);
             if (user == null)
                 return null;
-            return new UserData(user.Id, user.Role, user.IntegrationAccountId);
+            return new UserData(user.Id, user.Username, user.Role, user.IntegrationAccountId);
         }
 
         public UserData GetUserByIntegration(string integrationAccountId)
@@ -221,7 +279,8 @@ namespace RecipeJournalApi.Infrastructure
             var user = _users.FirstOrDefault(u => u.IntegrationAccountId == integrationAccountId);
             if (user == null)
                 return null;
-            return new UserData(user.Id, user.Role, user.IntegrationAccountId);
+            return new UserData(user.Id, user.Username, user.Role, user.IntegrationAccountId);
         }
+
     }
 }
