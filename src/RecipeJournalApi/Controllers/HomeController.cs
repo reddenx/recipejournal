@@ -90,7 +90,12 @@ namespace RecipeJournalApi.Controllers
                 if (user == null)
                 {
                     var accountId = Guid.NewGuid();
-                    user = _userRepo.CreateUser(accountId, session.AccountId);
+                    _userRepo.CreateUser(accountId, session.Username, session.AccountId);
+                    user = _userRepo.GetUserByAccountId(accountId);
+                }
+                else if (user.Username != session.Username)
+                {
+                    _userRepo.UpdateUsername(user.Id, session.Username);
                 }
 
                 //TODO probably want to randomize a delay to prevent distinguishing these 400s from a malicious user
