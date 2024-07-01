@@ -14,6 +14,7 @@ import JournalPage from "../views/JournalPage.vue";
 import GoalsPage from "../views/GoalsPage";
 import AccountPage from "../views/AccountPage";
 import RecipeJournalPage from "../views/RecipeJournalPage.vue";
+import StyleGuidePage from "../views/StyleGuide.vue";
 
 Vue.use(VueRouter)
 
@@ -57,6 +58,10 @@ const routes = [
   {
     path: '/account',
     component: AccountPage
+  },
+  {
+    path: '/style',
+    component: StyleGuidePage
   }
 
   // {

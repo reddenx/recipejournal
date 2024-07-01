@@ -117,7 +117,7 @@ export default {
 
 </script>
 
-<style>
+<style scoped>
 .article-container {
     max-width: 40rem;
     margin-left: auto;
