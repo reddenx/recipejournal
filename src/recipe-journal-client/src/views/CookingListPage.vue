@@ -5,148 +5,45 @@
             <router-link v-if="isLoggedIn" :to="'/cms/'">NEW</router-link>
 
             <div class="recipe-list-container">
-                <div
-                    class="recipe-list-item grid-r"
-                    v-for="recipe in recipes"
-                    :key="recipe.id"
-                >
+                <div class="recipe-list-item grid-r" v-for="recipe in recipes" :key="recipe.id" :class="{'private': !recipe.isPublic, 'draft': recipe.isDraft}">
                     <div class="recipe-list-item-top grid-r">
                         <div class="title">
-                            <router-link :to="'/cook/' + recipe.id">{{
-                                recipe.title
-                            }}</router-link>
+                            <router-link :to="'/cook/' + recipe.id">{{recipe.title}}</router-link>
                         </div>
-                        <!-- <div class="tag">baking</div> -->
                     </div>
                     <div class="recipe-list-item-bottom grid-r">
-                        <div
-                            class="rating-container"
-                            v-if="recipe.ratingCount > 0 && typeof recipe.rating == 'number'"
-                        >
-                            <span
-                                class="fa-star"
-                                :class="{
-                                    'fa-solid': recipe.starCount >= 1,
-                                    'fa-regular': recipe.starCount < 1,
-                                }"
-                            ></span>
-                            <span
-                                class="fa-star"
-                                :class="{
-                                    'fa-solid': recipe.starCount >= 2,
-                                    'fa-regular': recipe.starCount < 2,
-                                }"
-                            ></span>
-                            <span
-                                class="fa-star"
-                                :class="{
-                                    'fa-solid': recipe.starCount >= 3,
-                                    'fa-regular': recipe.starCount < 3,
-                                }"
-                            ></span>
-                            <span
-                                class="fa-star"
-                                :class="{
-                                    'fa-solid': recipe.starCount >= 4,
-                                    'fa-regular': recipe.starCount < 4,
-                                }"
-                            ></span>
-                            <span
-                                class="fa-star"
-                                :class="{
-                                    'fa-solid': recipe.starCount == 5,
-                                    'fa-regular': recipe.starCount < 5,
-                                }"
-                            ></span>
+                        <div class="rating-container" v-if="recipe.ratingCount > 0 && typeof recipe.rating == 'number'">
+                            <span class="fa-star" :class="{'fa-solid': recipe.starCount >= 1,'fa-regular': recipe.starCount < 1,}"></span>
+                            <span class="fa-star" :class="{'fa-solid': recipe.starCount >= 2,'fa-regular': recipe.starCount < 2, }"></span>
+                            <span class="fa-star" :class="{'fa-solid': recipe.starCount >= 3,'fa-regular': recipe.starCount < 3,}"></span>
+                            <span class="fa-star" :class="{'fa-solid': recipe.starCount >= 4,'fa-regular': recipe.starCount < 4,}"></span>
+                            <span class="fa-star" :class="{ 'fa-solid': recipe.starCount == 5, 'fa-regular': recipe.starCount < 5, }"></span>
                             ({{ recipe.ratingCount }})
                         </div>
-                        <div
-                            class="success-bar-container"
-                            v-if="recipe.mySuccess"
-                        >
-                            <div
-                                class="success-bar"
-                                :style="{ width: recipe.mySuccess * 100 + '%' }"
-                            ></div>
+                        <div class="success-bar-container" v-if="recipe.mySuccess">
+                            <div class="success-bar" :style="{ width: recipe.mySuccess * 100 + '%' }"></div>
                         </div>
-                        <router-link
-                            v-if="isLoggedIn"
-                            class="last-cooked-date"
-                            :to="'/journal/' + recipe.id"
-                        >
+                        <router-link v-if="isLoggedIn" class="last-cooked-date" :to="'/journal/' + recipe.id">
                             <span class="fa-solid fa-book"></span>
                             <span v-if="recipe.myAttemptCount">({{ recipe.myAttemptCount }})
                                 <!-- {{recipe.dateLastAttempted.toLocaleDateString()}} -->
-                                </span>
+                            </span>
                         </router-link>
                         <div class="duration" v-show="recipe.duration">
-                            <span class="fa-solid fa-clock"></span>
-                            {{ recipe.duration }}
+                            <span class="fa-solid fa-clock"></span> {{ recipe.duration }}
                         </div>
                         <div class="servings" v-show="recipe.servings">
-                            <span class="fa-solid fa-utensils"></span>
-                            {{ recipe.servings }}
+                            <span class="fa-solid fa-utensils"></span> {{ recipe.servings }}
                         </div>
                         <div v-if="recipe.goalCount">
-                            <span class="fa-regular fa-lightbulb"></span>
-                            {{ recipe.goalCount }}
+                            <span class="fa-regular fa-lightbulb"></span> {{ recipe.goalCount }}
                         </div>
                     </div>
                     <div class="recipe-list-item-right">
-                        <!-- <div class="author-icon">Sean</div> -->
-                        <button
-                            v-if="isLoggedIn"
-                            type="button"
-                            @click="$router.push('/cms/' + recipe.id)"
-                        >
+                        <button v-if="isLoggedIn" type="button" @click="$router.push('/cms/' + recipe.id)">
                             <span class="fa-solid fa-pen-to-square"></span>
                         </button>
-                        <ShoppingWidget
-                            v-model="recipe.amountShoppingFor"
-                            @input="shopRecipeAmountChanged(recipe, $event)"
-                        />
-                        <!-- <div class="shopping-widget-container">
-                            <button
-                                class="shopping-cart-button"
-                                @click="plusShopButtonPressed(recipe)"
-                                v-show="recipe.amountShoppingFor == 0"
-                            >
-                                <span class="fa-solid fa-cart-plus"></span>
-                            </button>
-                            <div v-show="recipe.amountShoppingFor > 0">
-                                <button
-                                    type="button"
-                                    @click="minusShopButtonPressed(recipe)"
-                                    class="shopping-minus-button"
-                                >
-                                    <span
-                                        v-if="recipe.amountShoppingFor <= 1"
-                                        class="fa-solid fa-trash-can"
-                                    ></span>
-                                    <span v-else>-</span>
-                                </button>
-                                <input
-                                    type="number"
-                                    :value="recipe.amountShoppingFor"
-                                    @input="
-                                        shopInputChanged(
-                                            recipe,
-                                            $event.target.value
-                                        )
-                                    "
-                                />
-                                <button
-                                    class="shopping-plus-button"
-                                    type="button"
-                                    @click="
-                                        recipe.amountShoppingFor += 1;
-                                        shopRecipeAmountChanged(recipe);
-                                    "
-                                >
-                                    +
-                                </button>
-                            </div>
-                        </div> -->
+                        <ShoppingWidget v-model="recipe.amountShoppingFor" @input="shopRecipeAmountChanged(recipe, $event)" />
                     </div>
                 </div>
             </div>
@@ -225,13 +122,20 @@ export default {
     }),
     async mounted() {
         let recipeDtos = await recipeApi.getRecipeList();
-        this.recipeDtos = recipeDtos;
+
+        let sortedDtos = [
+            ...recipeDtos.filter(dto => dto.isPublic && !dto.isDraft), 
+            ...recipeDtos.filter(dto => !dto.isPublic && !dto.isDraft), 
+            ...recipeDtos.filter(dto => dto.isDraft)
+        ];
+        
+        this.recipeDtos = sortedDtos;
         let user = await userApi.getLoggedInUser();
 
         if (user) {
             let shoppingList = await shoppingApi.getShoppingList();
 
-            this.recipes = recipeDtos.map(
+            this.recipes = sortedDtos.map(
                 (r) =>
                     new RecipeListItemViewmodel(
                         r.id,
@@ -303,7 +207,8 @@ export default {
             }));
             await shoppingApi.updateShoppingList(
                 [{ id: recipe.id, scale: recipe.amountShoppingFor }, ...scales],
-                list.gatheredIds
+                list.gatheredIds,
+                list.nonrecipeIngredients
             );
             this.shoppingRecipeIds = list.recipes.map((r) => r.id);
             this.shoppingRecipeIds.push(recipe.id);
@@ -350,6 +255,14 @@ export default {
 
 .author-icon {
     padding: 1em;
+}
+
+
+.private {
+    background-color: #d8deff;
+}
+.draft {
+    background-color: #fff0d0;
 }
 
 .recipe-list-container div {

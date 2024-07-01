@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RecipeJournalApi.Infrastructure;
+using SMT.Utilities.Logging;
 
 namespace RecipeJournalApi.Controllers
 {
@@ -11,15 +12,15 @@ namespace RecipeJournalApi.Controllers
     [Route("api/v1/recipes")]
     public class RecipeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ITraceLogger _logger;
         private readonly IRecipeRepository _recipeRepo;
         private readonly IJournalRepository _journalRepository;
 
-        public RecipeController(ILogger<HomeController> logger, IRecipeRepository recipeRepo, IJournalRepository journalRepository)
+        public RecipeController(IRecipeRepository recipeRepo, IJournalRepository journalRepository, ITraceLogger logger)
         {
-            _logger = logger;
             _recipeRepo = recipeRepo;
             _journalRepository = journalRepository;
+            _logger = logger;
         }
 
         [HttpGet("")]
@@ -49,16 +50,6 @@ namespace RecipeJournalApi.Controllers
                 personalLastJournalDate: r.LoggedInUserInfo?.LatestJournalEntryDate,
                 personalNoteCount: r.LoggedInUserInfo?.NoteCount ?? 0
             )).ToArray();
-            
-            
-            
-            // new RecipeListItemDto
-            // {
-            //     Id = r.Id,
-            //     DurationMinutes = r.DurationMinutes,
-            //     Servings = r.Servings,
-            //     Title = r.Title
-            // }).ToArray();
         }
         public class RecipeListItemDto
         {
@@ -76,9 +67,9 @@ namespace RecipeJournalApi.Controllers
             public DateTime LastModified { get; set; }
             public bool IsPublic { get; set; }
             public bool IsDraft { get; set; }
-            public LoggedInInfoDto LoggedInInfo { get; set; }
+            public LoggedInItemInfoDto LoggedInInfo { get; set; }
 
-            public class LoggedInInfoDto
+            public class LoggedInItemInfoDto
             {
                 public float? PersonalBest { get; set; }
                 public int PersonalJournalCount { get; set; }
@@ -104,7 +95,7 @@ namespace RecipeJournalApi.Controllers
                     LastModified = lastModified,
                     IsPublic = isPublic,
                     IsDraft = isDraft,
-                    LoggedInInfo = isLoggedIn ? new LoggedInInfoDto
+                    LoggedInInfo = isLoggedIn ? new LoggedInItemInfoDto
                     {
                         PersonalBest = personalBest,
                         PersonalJournalCount = personalJournalCount,
@@ -121,7 +112,10 @@ namespace RecipeJournalApi.Controllers
         {
             var recipe = _recipeRepo.GetRecipe(id);
             if (recipe == null)
+            {
+                _logger.Info("no recipe found", id);
                 return StatusCode(404);
+            }
             RecipeDto.LoggedInInfoDto userRecipeInfo = null;
             var user = UserInfo.FromClaimsPrincipal(this.User);
             if (user != null)

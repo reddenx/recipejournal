@@ -5,12 +5,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RecipeJournalApi.Controllers;
 using RecipeJournalApi.Infrastructure;
+using SMT.Utilities.Logging;
 using System;
 using System.Threading.Tasks;
 
 namespace RecipeJournalApi
 {
-    public class SiteConfig : IDbConfig, IAuthenticationProxyConfiguration
+    public class SiteConfig : IDbConfig, IAuthenticationConfiguration
     {
         private readonly IConfiguration _config;
 
@@ -20,8 +21,9 @@ namespace RecipeJournalApi
         }
 
         public string ConnectionString => _config.GetConnectionString("recipe");
-        public string AccountServerUrl => _config.GetSection("AuthenticationConfiguration")["Url"];
-        public string AccountIntegrationName => _config.GetSection("AuthenticationConfiguration")["IntegrationName"];
+
+        public string Domain => _config.GetSection("authentication")["domain"];
+        public string AuthBaseUrl => _config.GetSection("authentication")["baseUrl"];
     }
 
     public class Program
@@ -30,23 +32,42 @@ namespace RecipeJournalApi
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+#if DEBUG
+            builder.Configuration.AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
+#endif
+
+            var loggingConfig = builder.Configuration.GetSection("SmtLoggingConfiguration");
 
             // Add services to the container.
             builder.Services.AddSingleton<IDbConfig, SiteConfig>();
-            builder.Services.AddSingleton<IAuthenticationProxyConfiguration, SiteConfig>();
             builder.Services.AddHttpClient();
+            builder.Services.AddSmtLogging(c =>
+            {
+                c.CurrentLogLevel = Microsoft.Extensions.Logging.LogLevel.Error;
+                c.Port = int.Parse(loggingConfig["port"]);
+                c.Host = loggingConfig["host"];
+                c.Secret = loggingConfig["secret"];
+            });
+            builder.Services.AddSmtLoggingEndpoints(c => 
+            {
+                c.BaseUrl = loggingConfig["endpointBaseUrl"];
+            });
+
+            builder.Services.AddSingleton<IAuthenticationConfiguration, SiteConfig>();
+            
 #if DEBUG
-            builder.Services.AddSingleton<IAuthenticationProxy, MockAuthProxy>();
+            builder.Services.AddSingleton<IShoppingRepository, MockShoppingRepository>();
             builder.Services.AddSingleton<IRecipeRepository, MockRecipeRepository>();
             builder.Services.AddSingleton<IUserRepository, MockUserRepository>();
-            builder.Services.AddSingleton<IShoppingRepository, MockShoppingRepository>();
             builder.Services.AddSingleton<IJournalRepository, MockJournalRepository>();
+            builder.Services.AddSingleton<IAuthenticationUtility, MockAuthenticationUtility>();
 #else
-            builder.Services.AddSingleton<IAuthenticationProxy, AuthenticationProxy>();
             builder.Services.AddSingleton<IShoppingRepository, ShoppingRepository>();
             builder.Services.AddSingleton<IRecipeRepository, RecipeRepository>();
             builder.Services.AddSingleton<IUserRepository, UserRepository>();
             builder.Services.AddSingleton<IJournalRepository, JournalRepository>();
+            builder.Services.AddSingleton<IAuthenticationUtility, AuthenticationUtility>();
+            builder.Services.AddSingleton<IAuthenticationConfiguration, SiteConfig>();
 #endif
 
             builder.Services.AddControllers();
@@ -77,8 +98,11 @@ namespace RecipeJournalApi
 
             app.UseStaticFiles();
 
+            app.UseSmtTracingHeaderInterpreter();
+            app.UseSmtLoggingEndpoints();
+
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            // if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();

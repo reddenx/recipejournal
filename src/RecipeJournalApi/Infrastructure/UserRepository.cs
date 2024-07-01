@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -9,16 +10,32 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
+using SMT.Utilities.Logging;
 
 namespace RecipeJournalApi.Infrastructure
 {
     public interface IUserRepository
     {
-        UserInfo GetUser(string username);
-        UserInfo GetUser(Guid id);
-        //create user
-        //update user
-        //deactivate user
+        UserData GetUserByAccountId(Guid accountId);
+        UserData GetUserByIntegration(string integrationAccountId);
+        bool CreateUser(Guid accountId, string username, string integrationAccountId);
+        bool UpdateUsername(Guid accountId, string username);
+    }
+
+    public class UserData
+    {
+        public UserData(Guid id, string username, string accessLevel, string integrationAccountId)
+        {
+            Id = id;
+            Username = username;
+            AccessLevel = accessLevel;
+            IntegrationAccountId = integrationAccountId;
+        }
+
+        public Guid Id { get; private set; }
+        public string Username { get; private set; }
+        public string AccessLevel { get; private set; }
+        public string IntegrationAccountId { get; private set; }
     }
 
     public class UserInfo
@@ -64,60 +81,142 @@ namespace RecipeJournalApi.Infrastructure
     public class UserRepository : IUserRepository
     {
         private readonly string _connectionString;
+        private readonly ITraceLogger _logger;
 
-        public UserRepository(IDbConfig config)
+        public UserRepository(IDbConfig config, ITraceLogger logger)
         {
             _connectionString = config.ConnectionString;
+            _logger = logger;
         }
 
-        public UserInfo GetUser(string username)
+        public bool UpdateUsername(Guid accountId, string username)
         {
-            var sql = @"
-            select 
-                a.Id,
-                a.Username,
-                a.PermissionsRole
-            from account a
-            where a.Username = @Username";
-
-            using (var conn = new MySqlConnection(_connectionString))
+            try
             {
-                var userData = conn.Query<UserData>(sql, new { Username = username }).FirstOrDefault();
-                return new UserInfo
+                var sql = @"
+                    update account
+                    set Username = @Username
+                    where Id = @AccountId";
+
+                using (var conn = new MySqlConnection(_connectionString))
                 {
-                    AccessLevel = userData.PermissionsRole,
-                    Id = Guid.Parse(userData.Id),
-                    Username = userData.Username
-                };
+                    return conn.Execute(sql, new
+                    {
+                        AccountId = accountId.ToString("N"),
+                        Username = username,
+                    }) > 0;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error("failed to update username", e, accountId, username);
+                throw;
             }
         }
 
-        public UserInfo GetUser(Guid id)
+        public bool CreateUser(Guid accountId, string username, string integrationAccountId)
         {
-            var sql = @"
-            select 
-                a.Id,
-                a.Username,
-                a.PermissionRole
-            from account a
-            where a.Id = @Id";
-
-            using (var conn = new MySqlConnection(_connectionString))
+            try
             {
-                var userData = conn.Query<UserData>(sql, new { Id = id.ToString("N") }).FirstOrDefault();
-                return new UserInfo
+                var sql = @"
+                    insert into account (Id, Username, IntegrationAccountId, PermissionsRole, DateCreated)
+                    values (@AccountId, @Username, @IntegrationAccountId, 'user', @DateCreated)";
+
+                using (var conn = new MySqlConnection(_connectionString))
                 {
-                    AccessLevel = userData.PermissionsRole,
-                    Id = Guid.Parse(userData.Id),
-                    Username = userData.Username
-                };
+                    return conn.Execute(sql, new
+                    {
+                        AccountId = accountId.ToString("N"),
+                        Username = username,
+                        IntegrationAccountId = integrationAccountId,
+                        DateCreated = DateTime.UtcNow
+                    }) > 0;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error("failed to create user", e, accountId, integrationAccountId);
+                throw;
+            }
+        }
+        public UserData GetUserByAccountId(Guid accountId)
+        {
+            try
+            {
+                var sql = @"
+                    select 
+                        a.Id,
+                        a.Username,
+                        a.IntegrationAccountId,
+                        a.PermissionsRole
+                    from account a
+                    where a.Id = @AccountId";
+
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    var data = conn.Query<UserDataRow>(sql, new
+                    {
+                        AccountId = accountId.ToString("N")
+                    }).FirstOrDefault();
+
+                    if (data == null)
+                        return null;
+
+                    return new UserData(
+                        Guid.Parse(data.Id),
+                        data.Username,
+                        data.PermissionsRole,
+                        data.IntegrationAccountId);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error("failed to get user", e, accountId);
+                throw;
+            }
+        }
+        public UserData GetUserByIntegration(string integrationAccountId)
+        {
+            try
+            {
+                var sql = @"
+                    select 
+                        a.Id,
+                        a.Username,
+                        a.IntegrationAccountId,
+                        a.PermissionsRole
+                    from account a
+                    where a.IntegrationAccountId = @IntegrationAccountId";
+
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    var data = conn.Query<UserDataRow>(sql, new
+                    {
+                        IntegrationAccountId = integrationAccountId
+                    }).FirstOrDefault();
+
+                    if (data == null)
+                        return null;
+
+                    return new UserData(
+                        Guid.Parse(data.Id),
+                        data.Username,
+                        data.PermissionsRole,
+                        data.IntegrationAccountId);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error("failed to get user by integration", e, integrationAccountId);
+                throw;
             }
         }
 
-        class UserData
+        class UserDataRow
         {
             public string Id { get; set; }
             public string Username { get; set; }
+            public string IntegrationAccountId { get; set; }
             public string PermissionsRole { get; set; }
         }
     }
@@ -126,27 +225,62 @@ namespace RecipeJournalApi.Infrastructure
     {
         public static readonly Guid MOCK_USER = Guid.Parse("00000000000000000000000000000001");
 
-        public UserInfo GetUser(string username)
+        private static readonly List<MockUser> _users = new List<MockUser>();
+        class MockUser
         {
-            if (username == "sean")
-            {
-                return new UserInfo
-                {
-                    Username = "sean",
-                    Id = MOCK_USER,
-                    AccessLevel = "admin",
-                };
-            }
-            return null;
+            public Guid Id { get; set; }
+            public string Username { get; set; }
+            public string IntegrationAccountId { get; set; }
+            public string Role { get; set; }
         }
 
-        public UserInfo GetUser(Guid id)
+
+
+        public bool UpdateUsername(Guid accountId, string username)
         {
-            if (id == MOCK_USER)
-            {
-                return GetUser("sean");
-            }
-            return null;
+            var user = _users.FirstOrDefault(u => u.Id == accountId);
+            if (user == null)
+                return false;
+            user.Username = username;
+            return true;
         }
+
+        public bool CreateUser(Guid accountId, string username, string integrationAccountId)
+        {
+            var user = new MockUser
+            {
+                IntegrationAccountId = integrationAccountId,
+                Username = username,
+                Role = "user",
+                Id = accountId,
+            };
+
+            //first mock user created is admin with some other things hooked to it
+            if (_users.Count == 0)
+            {
+                user.Id = MOCK_USER;
+                user.Role = "admin";
+            }
+
+            _users.Add(user);
+            return true;
+        }
+
+        public UserData GetUserByAccountId(Guid accountId)
+        {
+            var user = _users.FirstOrDefault(u => u.Id == accountId);
+            if (user == null)
+                return null;
+            return new UserData(user.Id, user.Username, user.Role, user.IntegrationAccountId);
+        }
+
+        public UserData GetUserByIntegration(string integrationAccountId)
+        {
+            var user = _users.FirstOrDefault(u => u.IntegrationAccountId == integrationAccountId);
+            if (user == null)
+                return null;
+            return new UserData(user.Id, user.Username, user.Role, user.IntegrationAccountId);
+        }
+
     }
 }
