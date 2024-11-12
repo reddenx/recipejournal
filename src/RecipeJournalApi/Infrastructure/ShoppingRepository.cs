@@ -4,8 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Dapper;
-using MySql.Data.MySqlClient;
-using Org.BouncyCastle.Asn1.Misc;
+using MySqlConnector;
 
 namespace RecipeJournalApi.Infrastructure
 {
