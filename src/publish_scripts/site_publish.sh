@@ -39,9 +39,9 @@ cd $dotnetApiPath
 echo "step 4/5 server build STARTING"
 if [ "$#" -eq 1 ]; then
     echo "publishing server version $1"
-    sudo -u pi dotnet publish -c Release /property:Version=$1 -r linux-arm >> publish.log
+    sudo -u pi dotnet publish -c Release /property:Version=$1 -r linux-arm64 >> publish.log
 else 
-    sudo -u pi dotnet publish -c Release -r linux-arm >> publish.log
+    sudo -u pi dotnet publish -c Release -r linux-arm64 >> publish.log
 fi
 echo "step 4/5 server build COMPLETE"
 

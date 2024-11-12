@@ -1,5 +1,8 @@
 server {
 
+        listen 80;
+        listen [::]:80;
+
         server_name recipes.daystone.club;
 
         location / {
@@ -8,25 +11,25 @@ server {
                 proxy_set_header Connection keep-alive;
         }
 
-    listen [::]:443 ssl; # managed by Certbot
-    listen 443 ssl; # managed by Certbot
-    ssl_certificate /etc/letsencrypt/live/recipes.daystone.club/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/recipes.daystone.club/privkey.pem; # managed by Certbot
-    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+    # listen [::]:443 ssl; # managed by Certbot
+    # listen 443 ssl; # managed by Certbot
+    # ssl_certificate /etc/letsencrypt/live/recipes.daystone.club/fullchain.pem; # managed by Certbot
+    # ssl_certificate_key /etc/letsencrypt/live/recipes.daystone.club/privkey.pem; # managed by Certbot
+    # include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
 
 }
-server {
-    if ($host = recipes.daystone.club) {
-        return 301 https://$host$request_uri;
-    } # managed by Certbot
+# server {
+#     if ($host = recipes.daystone.club) {
+#         return 301 https://$host$request_uri;
+#     } # managed by Certbot
 
 
-        listen 80;
-        listen [::]:80;
+#         listen 80;
+#         listen [::]:80;
 
-        server_name recipes.daystone.club;
-    return 404; # managed by Certbot
+#         server_name recipes.daystone.club;
+#     return 404; # managed by Certbot
 
 
-}
+# }
