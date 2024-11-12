@@ -5,8 +5,8 @@ After=nginx.service
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/Hosting/recipejournal/src/RecipeJournalApi/bin/Release/net6.0/linux-arm/publish
-ExecStart=/home/pi/Hosting/recipejournal/src/RecipeJournalApi/bin/Release/net6.0/linux-arm/publish/RecipeJournalApi --urls "http://localhost:5004"
+WorkingDirectory=/home/pi/Hosting/recipejournal/src/RecipeJournalApi/bin/Release/net6.0/linux-arm64/publish
+ExecStart=/home/pi/Hosting/recipejournal/src/RecipeJournalApi/bin/Release/net6.0/linux-arm64/publish/RecipeJournalApi --urls "http://localhost:5004"
 Restart=always
 
 [Install]
